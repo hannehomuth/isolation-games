@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+    <action>
+        <actionName>CUSTOM-Start App</actionName>
+        <displayName>Start App</displayName>
+        <goals>
+            <goal>thorntail:run</goal>
+        </goals>
+    </action>
+    <action>
+        <actionName>run</actionName>
+        <packagings>
+            <packaging>war</packaging>
+        </packagings>
+        <goals>
+            <goal>thorntail:run</goal>
+        </goals>
+    </action>
+</actions>

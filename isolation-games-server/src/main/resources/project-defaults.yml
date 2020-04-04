@@ -1,0 +1,5 @@
+## Konfiguration für den Thorntail Container.
+---
+games:
+  storage:
+    path: /tmp/foodmanager
