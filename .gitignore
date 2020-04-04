@@ -1,0 +1,5 @@
+/target/
+/isolation-games-client/target/
+/isolation-games-client/target-grunt/
+/isolation-games-client/app/lib/
+/isolation-games-server/target/
