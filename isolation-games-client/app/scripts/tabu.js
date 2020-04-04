@@ -65,10 +65,10 @@ angular.module('myApp.tabu', ['ngRoute'])
                             }
                             checkForMaster();
                             $scope.countdownSeconds = $scope.gamedata.roundLength;
+                            $scope.cancelCountDowns();
                             calculateCountDown();
-                            if ($scope.gamedata.roundRunning === false) {
-                                $scope.cancelCountDowns();
-                            }
+//                            if ($scope.gamedata.roundRunning === false) {
+//                            }
                         }, function errorCallback(response) {
                             $scope.errorData = response.data;
                         });
@@ -187,6 +187,28 @@ angular.module('myApp.tabu', ['ngRoute'])
                         }, function errorCallback(response) {
                             $scope.errorData = response.data;
                         });
+                    }
+                };
+                
+                $scope.nextcard = function () {
+                    if ($scope.gameid) {
+                        $http({
+                            method: 'POST',
+                            url: UrlInjector.getBaseURL() + '/api/tabu/' + $scope.gameid + '/nextcard'
+                        }).then(function successCallback(response) {
+                            $scope.gamedata = response.data;
+                        }, function errorCallback(response) {
+                            $scope.errorData = response.data;
+                        });
+                    }
+                };
+                
+                $scope.intervene = function () {
+                    if ($scope.gameid) {
+                        $http({
+                            method: 'POST',
+                            url: UrlInjector.getBaseURL() + '/api/tabu/' + $scope.gameid + '/intervene'
+                        })
                     }
                 };
 
@@ -314,6 +336,15 @@ angular.module('myApp.tabu', ['ngRoute'])
                         if (event.data === "STOP_COUNTDOWN") {
                             $scope.cancelCountDowns();
                         }
+                        if (event.data === "PULL_IF_MASTER" && $scope.meMaster) {
+                            $scope.getGame();
+                        }
+                        if (event.data === "INTERVENE") {
+                            showInterveneModal();
+                            if($scope.meMaster || ($rootScope.playerdata.id === $scope.gamedata.actualPlayer.id)){
+                                $scope.getGame();                                
+                            }
+                        }
                     }
                 });
                 ws.onError(function (event) {
@@ -330,6 +361,15 @@ angular.module('myApp.tabu', ['ngRoute'])
 
                 $scope.showCreateGameModal = function () {
                     $('#createGameModal').modal('show');
+                };
+                
+                var showInterveneModal = function () {
+                    $('#interveneModal').modal('show');
+                    $timeout(hideInterveneModal,2000);
+                };
+                
+                var hideInterveneModal = function () {
+                    $('#interveneModal').modal('hide');
                 };
 
 

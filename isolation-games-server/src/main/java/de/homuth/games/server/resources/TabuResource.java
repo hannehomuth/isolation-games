@@ -252,6 +252,38 @@ public class TabuResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
+    
+    @POST
+    @Path("{gameid}/nextcard")
+    public Response nextCard(@PathParam("gameid") String gameId) {
+        try {
+            Tabu storedGame = storageService.getTabu(gameId);
+            storedGame.nextCard();
+            storageService.storeTabu(storedGame);
+            broadcast("PULL_IF_MASTER");
+            LOGGER.info("Next card");
+            return Response.ok(storedGame).build();
+        } catch (IOException ex) {
+            LOGGER.error("...", ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
+    @POST
+    @Path("{gameid}/intervene")
+    public Response intervene(@PathParam("gameid") String gameId) {
+        try {
+            Tabu storedGame = storageService.getTabu(gameId);
+            storedGame.nextCard();
+            storageService.storeTabu(storedGame);
+            broadcast("INTERVENE");
+            LOGGER.info("Intervene");
+            return Response.ok(storedGame).build();
+        } catch (IOException ex) {
+            LOGGER.error("...", ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
     @GET
     @Path("all")

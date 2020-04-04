@@ -3,6 +3,7 @@ package de.homuth.games.server.model.tabu;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.homuth.games.server.model.Game;
+import de.homuth.games.server.model.Player;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -45,6 +46,15 @@ public class Tabu extends Game {
         setRoundRunning(Boolean.TRUE);
         setLastModified(new Date());
     }
+    
+    /**
+     * Creates the next round of the game
+     */
+    public void nextCard() {
+        setStarted(true);
+        switchTabuCard();
+        setLastModified(new Date());
+    }
 
     /**
      * Creates the next round of the game
@@ -66,7 +76,12 @@ public class Tabu extends Game {
         if (playerNumber > getPlayers().size()) {
             playerNumber = 1;
         }
-        setActualPlayer(getPlayers().get((playerNumber - 1)));
+        Player ap = getPlayers().get((playerNumber - 1));
+        if(ap.isMaster()){
+            switchToNextPlayer();
+        }else{
+            setActualPlayer(ap);            
+        }
     }
 
     /**
