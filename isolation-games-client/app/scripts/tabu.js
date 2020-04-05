@@ -18,7 +18,9 @@ angular.module('myApp.tabu', ['ngRoute'])
                 $scope.gamedata = {};
                 $scope.allGames = [];
                 $scope.meMaster = false;
-
+                $scope.nextRoundCountDownRunningIndicator = false;
+                $scope.inGameCountDownRunning = false;
+                
                 $scope.createNewGame = function () {
                     console.info("New game", $scope.newGame);
                     $http({
@@ -268,6 +270,8 @@ angular.module('myApp.tabu', ['ngRoute'])
                         }
                     } else {
                         $scope.nextRoundCountDownPromise = $interval($scope.nextRoundCountDown, 1000);
+                        $scope.nextRoundCountDownRunningIndicator = true;
+                        openCountDownModal();
                         console.log("Startet nextgame countdown");
                     }
                 }
@@ -277,6 +281,8 @@ angular.module('myApp.tabu', ['ngRoute'])
                     $scope.nextRoundCountDownSeconds = $scope.nextRoundCountDownSeconds - 1000;
                     if ($scope.nextRoundCountDownSeconds <= 0) {
                         $interval.cancel($scope.nextRoundCountDownPromise);
+                        $scope.nextRoundCountDownRunningIndicator = false;
+                        closeCountDownModal();
                         return;
                     }
                     $scope.countdownMessage = $scope.nextRoundCountDownSeconds / 1000;
@@ -286,6 +292,7 @@ angular.module('myApp.tabu', ['ngRoute'])
                     console.info("In game count down");
                     $scope.countdownSeconds = $scope.countdownSeconds - 1;
                     if ($scope.countdownSeconds <= 0) {
+                        $scope.inGameCountDownRunning = false;
                         $scope.stopRound();
                         $interval.cancel($scope.countDownPromise);
 
@@ -297,20 +304,51 @@ angular.module('myApp.tabu', ['ngRoute'])
                         $timeout.cancel($scope.startCountDownPromise);
                     }
                     if ($scope.countDownPromise) {
-                        $interval.cancel($scope.countDownPromise);
+                        $scope.inGameCountDownRunning = false;
+                        $interval.cancel($scope.countDownPromise);                        
                         console.log("Canceled ingame countdown");
                     }
                     if ($scope.nextRoundCountDownPromise) {
                         $interval.cancel($scope.nextRoundCountDownPromise);
+                        $scope.nextRoundCountDownRunningIndicator = false;
+                        closeCountDownModal();
                         console.log("Canceled nextround countdown");
                     }
-                }
+                };
+                
+                $scope.nextRoundCountDownRunning = function(){
+                    if($scope.gamedata.roundRunning
+                            && $scope.nextRoundCountDownRunningIndicator
+                            && !$scope.inGameCountDownRunning){
+                        return true;
+                    }
+                    return false;
+                };
+                $scope.inGameRoundRunning = function(){
+                    if($scope.gamedata.roundRunning
+                            && !$scope.nextRoundCountDownRunningIndicator
+                            && $scope.inGameCountDownRunning){
+                        return true;
+                    }
+                    console.log("Game running",$scope.gamedata.roundRunning, "Next round c",$scope.nextRoundCountDownRunningIndicator,"Ingame:",$scope.inGameCountDownRunning);
+                    return false;
+                };
+                
+                
+
+                var openCountDownModal = function (){
+                    $('#roundStartModal').modal('show');
+                };
+                var closeCountDownModal = function (){
+                    $('#roundStartModal').modal('hide');
+                };
 
                 $scope.$on("$destroy", function () {
                     if ($scope.startCountDownPromise) {
                         $timeout.cancel($scope.startCountDownPromise);
                     }
                     if ($scope.countDownPromise) {
+                        $scope.inGameCountDownRunning = false;
                         $interval.cancel($scope.countDownPromise);
                         console.log("Canceled ingame countdown");
                     }
@@ -365,7 +403,9 @@ angular.module('myApp.tabu', ['ngRoute'])
                 
                 var showInterveneModal = function () {
                     $('#interveneModal').modal('show');
-                    $timeout(hideInterveneModal,2000);
+                    var audio = new Audio('../images/smssqueeze_idiszvnp.mp3');
+                    audio.play();
+                    $timeout(hideInterveneModal,1500);
                 };
                 
                 var hideInterveneModal = function () {
@@ -404,6 +444,7 @@ angular.module('myApp.tabu', ['ngRoute'])
                 var startCountDown = function () {
                     if ($scope.gamedata.roundRunning) {
                         console.log("Startet ingame countdown");
+                        $scope.inGameCountDownRunning = true;
                         delete $scope.countdownMessage;
                         $scope.countDownPromise = $interval($scope.countDown, 1000);
                     }

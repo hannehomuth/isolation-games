@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -31,6 +33,7 @@ import org.wildfly.swarm.spi.runtime.annotations.ConfigurationValue;
 public class StorageService {
 
     private static final String GAME_STORAGE_FOLDER = "games";
+    private static final String TMP_STORAGE_FOLDER = "temporary";
 
     private static final String PLAYER_STORAGE_FOLDER = "player";
 
@@ -63,6 +66,12 @@ public class StorageService {
         File foodsourceStorageFolder = new File(getStorageFolder(), GAME_STORAGE_FOLDER);
         createFolderIfNotExist(foodsourceStorageFolder);
         return foodsourceStorageFolder;
+    }
+    
+    private File getTmpStorageFolder() {
+        File tmpstorageFolder = new File(getStorageFolder(), TMP_STORAGE_FOLDER);
+        createFolderIfNotExist(tmpstorageFolder);
+        return tmpstorageFolder;
     }
 
     /**
@@ -120,11 +129,13 @@ public class StorageService {
         }
 
         File tabuFile = new File(getGamesStorageFolder(), tabu.getId() + ".json");
+        File tmpTabu = File.createTempFile("tabu", ".tmp", getTmpStorageFolder());
         tabu.setLastModified(new Date());
         tabu.setRemainingCards(tabu.getCards().size());
         ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(tabuFile, tabu);
-
+        mapper.writeValue(tmpTabu, tabu);
+        Files.move(tmpTabu.toPath(), tabuFile.toPath(), StandardCopyOption.ATOMIC_MOVE);
+        tmpTabu.deleteOnExit();
         return tabu;
     }
 

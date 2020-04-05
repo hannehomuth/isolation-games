@@ -41,7 +41,7 @@ public class Tabu extends Game {
         switchTabuCard();
 
         Calendar nextRoundStartCal = Calendar.getInstance();
-        nextRoundStartCal.add(Calendar.SECOND, 10);
+        nextRoundStartCal.add(Calendar.SECOND, 5);
         setNextRoundStart(nextRoundStartCal.getTime());
         setRoundRunning(Boolean.TRUE);
         setLastModified(new Date());
