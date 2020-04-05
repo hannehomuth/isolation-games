@@ -23,13 +23,14 @@ angular.module('myApp')
             };
             function _getBaseWSURL() {
                 var hostname = $window.location.hostname;
+                console.log("Hostname",hostname)
                 if (hostname.indexOf('localhost') === 0) {
-                    return "ws://localhost:8080";
+                    return "localhost:8080";
                 } else if (hostname.indexOf('192.168.188.55') === 0) {
-                    return "ws://192.168.188.55:8080";
+                    return "192.168.188.55:8080";
                 } else {
                     /* Take the url you're actually in */
-                    return "";
+                    return hostname+":8080";
                 }
             }
 

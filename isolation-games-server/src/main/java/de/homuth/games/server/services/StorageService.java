@@ -5,6 +5,7 @@ import de.homuth.games.server.JsonFileFilter;
 import de.homuth.games.server.model.Player;
 import de.homuth.games.server.model.tabu.Tabu;
 import de.homuth.games.server.model.tabu.TabuCard;
+import de.homuth.games.server.model.whoami.Whoami;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -33,6 +34,8 @@ import org.wildfly.swarm.spi.runtime.annotations.ConfigurationValue;
 public class StorageService {
 
     private static final String GAME_STORAGE_FOLDER = "games";
+    private static final String TABU_STORAGE_FOLDER = "tabu";
+    private static final String WHOAMI_STORAGE_FOLDER = "whoami";
     private static final String TMP_STORAGE_FOLDER = "temporary";
 
     private static final String PLAYER_STORAGE_FOLDER = "player";
@@ -62,8 +65,13 @@ public class StorageService {
      *
      * @return
      */
-    private File getGamesStorageFolder() {
-        File foodsourceStorageFolder = new File(getStorageFolder(), GAME_STORAGE_FOLDER);
+    private File getTabuGamesStorageFolder() {
+        File foodsourceStorageFolder = new File(getStorageFolder(), GAME_STORAGE_FOLDER+"/"+TABU_STORAGE_FOLDER);
+        createFolderIfNotExist(foodsourceStorageFolder);
+        return foodsourceStorageFolder;
+    }
+    private File getWhoamiGamesStorageFolder() {
+        File foodsourceStorageFolder = new File(getStorageFolder(), GAME_STORAGE_FOLDER+"/"+WHOAMI_STORAGE_FOLDER);
         createFolderIfNotExist(foodsourceStorageFolder);
         return foodsourceStorageFolder;
     }
@@ -116,10 +124,10 @@ public class StorageService {
                     }
                     TabuCard c = new TabuCard();
                     c.setId(UUID.randomUUID().toString());
-                    c.setTerm(fields[0]);
+                    c.setTerm(fields[0].toUpperCase());
                     List<String> pWords = new ArrayList<>();
                     for (int i = 1; i < fields.length; i++) {
-                        pWords.add(fields[i]);
+                        pWords.add(fields[i].toUpperCase());
                     }
                     c.setProhibitedWords(pWords);
                     cards.add(c);
@@ -128,7 +136,7 @@ public class StorageService {
             tabu.setCards(cards);
         }
 
-        File tabuFile = new File(getGamesStorageFolder(), tabu.getId() + ".json");
+        File tabuFile = new File(getTabuGamesStorageFolder(), tabu.getId() + ".json");
         File tmpTabu = File.createTempFile("tabu", ".tmp", getTmpStorageFolder());
         tabu.setLastModified(new Date());
         tabu.setRemainingCards(tabu.getCards().size());
@@ -137,6 +145,33 @@ public class StorageService {
         Files.move(tmpTabu.toPath(), tabuFile.toPath(), StandardCopyOption.ATOMIC_MOVE);
         tmpTabu.deleteOnExit();
         return tabu;
+    }
+    /**
+     * Method will store the provided food source to filesystem. If the
+     * foodsource already had an ID, the foodsource with the id will be located,
+     * and overwritten. Otherwise a new ID will be created and setted.
+     *
+     * @param whoami
+     * @return
+     */
+    public Whoami storeWhoami(Whoami whoami) throws IOException {
+        LOGGER.info("Stored whoami game");
+        if (whoami == null) {
+            throw new IllegalArgumentException("The game to store must not be null");
+        }
+        if (whoami.getId() == null || whoami.getId().isEmpty()) {
+            /* Seems to be a new food source. Generate an ID and set it. */
+            whoami.setId(UUID.randomUUID().toString());
+        }
+
+        File whoamiFile = new File(getWhoamiGamesStorageFolder(),whoami.getId() + ".json");
+        File tmpWhoami = File.createTempFile("whoami", ".tmp", getTmpStorageFolder());
+        whoami.setLastModified(new Date());
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValue(tmpWhoami, whoami);
+        Files.move(tmpWhoami.toPath(), whoamiFile.toPath(), StandardCopyOption.ATOMIC_MOVE);
+        tmpWhoami.deleteOnExit();
+        return whoami;
     }
 
     public Player storePlayer(Player p) throws IOException {
@@ -167,7 +202,7 @@ public class StorageService {
             throw new IllegalArgumentException("The game id to collect must not be null");
         }
 
-        File tabuFile = new File(getGamesStorageFolder(), id + ".json");
+        File tabuFile = new File(getTabuGamesStorageFolder(), id + ".json");
         ObjectMapper mapper = new ObjectMapper();
         int tries = 0;
         Boolean read = Boolean.FALSE;
@@ -189,24 +224,56 @@ public class StorageService {
         LOGGER.info("Read file after "+tries+" tries");
         return returnValue;
     }
-
-    public long getLastModifiedDate(String id) throws IOException {
+    
+    /**
+     * Method which will get the tabu game with the provided id
+     *
+     * @param id
+     * @return
+     * @throws IOException
+     */
+    public Whoami getWhoami(String id) throws IOException {
         if (id == null) {
             throw new IllegalArgumentException("The game id to collect must not be null");
         }
 
-        File tabuFile = new File(getGamesStorageFolder(), id + ".json");
-        if (!tabuFile.exists()) {
-            return 0;
+        File whoamiFile = new File(getWhoamiGamesStorageFolder(), id + ".json");
+        ObjectMapper mapper = new ObjectMapper();
+        int tries = 0;
+        Boolean read = Boolean.FALSE;
+        Whoami returnValue = null;
+        while (!read || tries > 5) {
+            tries++;
+            try {
+                returnValue = mapper.readValue(whoamiFile, Whoami.class);
+                read = Boolean.TRUE;
+            } catch (Exception e) {
+                LOGGER.warn("Error during read of file: "+e.getMessage());
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException ex) {
+                    LOGGER.warn("Interprupted during wait");
+                }
+            }
         }
-        return tabuFile.lastModified();
+        LOGGER.info("Read file after "+tries+" tries");
+        return returnValue;
     }
 
     public List<Tabu> getAllTabuGames() throws IOException {
-        File storageFolder = getGamesStorageFolder();
+        File storageFolder = getTabuGamesStorageFolder();
         List<Tabu> list = new ArrayList<>();
         for (File f : storageFolder.listFiles(new JsonFileFilter())) {
             list.add(getTabu(f.getName().replace(".json", "")));
+        }
+        return list;
+    }
+    
+    public List<Whoami> getAllWhoamiGames() throws IOException {
+        File storageFolder = getWhoamiGamesStorageFolder();
+        List<Whoami> list = new ArrayList<>();
+        for (File f : storageFolder.listFiles(new JsonFileFilter())) {
+            list.add(getWhoami(f.getName().replace(".json", "")));
         }
         return list;
     }

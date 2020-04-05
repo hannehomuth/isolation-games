@@ -364,7 +364,7 @@ angular.module('myApp.tabu', ['ngRoute'])
                 $scope.getGame();
 
 
-                var ws = $websocket(UrlInjector.getWSBaseURL() + "/tabu");
+                var ws = $websocket("ws://"+UrlInjector.getWSBaseURL() + "/tabu");
                 ws.onMessage(function (event) {
                     if (event && event.data) {
                         if (event.data === "PULL") {

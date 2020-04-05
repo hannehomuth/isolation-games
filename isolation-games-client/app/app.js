@@ -5,6 +5,7 @@ angular.module('myApp', [
   'ngRoute',
   'ngWebSocket',
   'myApp.tabu',
+  'myApp.whoami',
   'myApp.player'
 ]).
 config(['$locationProvider', '$routeProvider', function($locationProvider, $routeProvider) {

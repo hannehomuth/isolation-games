@@ -1,10 +1,9 @@
 package de.homuth.games.server.resources;
 
 import de.homuth.games.server.model.Player;
-import de.homuth.games.server.model.tabu.Tabu;
+import de.homuth.games.server.model.whoami.Whoami;
 import de.homuth.games.server.services.StorageService;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -34,26 +33,26 @@ import org.slf4j.LoggerFactory;
  *
  * @author jhomuth
  */
-@Path("tabu")
+@Path("whoami")
 @Produces(value = MediaType.APPLICATION_JSON)
 @Consumes(value = MediaType.APPLICATION_JSON)
-@ServerEndpoint(value = "/tabu")
-public class TabuResource {
+@ServerEndpoint(value = "/whoami")
+public class WhoamiResource {
 
     private Session session;
-    private static Set<TabuResource> tabuEndpoints = new CopyOnWriteArraySet<>();
+    private static Set<WhoamiResource> whoamiEndpoints = new CopyOnWriteArraySet<>();
     private static HashMap<String, String> users = new HashMap<>();
 
     @Inject
     private StorageService storageService;
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TabuResource.class);
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(WhoamiResource.class);
 
     @PUT
-    public Response create(Tabu game) {
+    public Response create(Whoami game) {
         try {
             LOGGER.info("Game created");
-            Tabu storedGame = storageService.storeTabu(game);
+            Whoami storedGame = storageService.storeWhoami(game);
             return Response.ok(storedGame).build();
         } catch (IOException ex) {
             LOGGER.error("...", ex);
@@ -65,8 +64,7 @@ public class TabuResource {
     @Path("{gameid}")
     public Response get(@PathParam("gameid") String gameId) {
         try {
-            Tabu storedGame = storageService.getTabu(gameId);
-            storedGame.setCards(Collections.EMPTY_LIST);
+            Whoami storedGame = storageService.getWhoami(gameId);
             return Response.ok(storedGame).build();
         } catch (IOException ex) {
             LOGGER.error("...", ex);
@@ -78,12 +76,12 @@ public class TabuResource {
     @Path("{gameid}")
     public Response addPlayer(@PathParam("gameid") String gameId, Player player) {
         try {
-            Tabu storedGame = storageService.getTabu(gameId);
+            Whoami storedGame = storageService.getWhoami(gameId);
             if (storedGame.isRoundRunning()) {
                 return Response.status(Response.Status.CONFLICT).build();
             }
             storedGame.addOrReplacePlayer(player);
-            storageService.storeTabu(storedGame);
+            storageService.storeWhoami(storedGame);
             LOGGER.info("Player added");
             broadcast("PULL");
             return Response.ok(storedGame).build();
@@ -97,12 +95,12 @@ public class TabuResource {
     @Path("{gameid}/{playerid}")
     public Response removePlayer(@PathParam("gameid") String gameId, @PathParam("playerid") String playerId) {
         try {
-            Tabu storedGame = storageService.getTabu(gameId);
+            Whoami storedGame = storageService.getWhoami(gameId);
             if (storedGame.isRoundRunning()) {
                 return Response.status(Response.Status.CONFLICT).build();
             }
             storedGame.removePlayer(playerId);
-            storageService.storeTabu(storedGame);
+            storageService.storeWhoami(storedGame);
             broadcast("PULL");
             LOGGER.info("Player removed");
             return Response.ok(storedGame).build();
@@ -116,12 +114,12 @@ public class TabuResource {
     @Path("{gameid}/master/{playerid}")
     public Response makePlayerToMaster(@PathParam("gameid") String gameId, @PathParam("playerid") String playerId) {
         try {
-            Tabu storedGame = storageService.getTabu(gameId);
+            Whoami storedGame = storageService.getWhoami(gameId);
             if (storedGame.isRoundRunning()) {
                 return Response.status(Response.Status.CONFLICT).build();
             }
             storedGame.makePlayerToMaster(playerId);
-            storageService.storeTabu(storedGame);
+            storageService.storeWhoami(storedGame);
             broadcast("PULL");
             LOGGER.info("Player made to master");
             return Response.ok(storedGame).build();
@@ -135,12 +133,12 @@ public class TabuResource {
     @Path("{gameid}/points+/{playerid}")
     public Response addPoint(@PathParam("gameid") String gameId, @PathParam("playerid") String playerId) {
         try {
-            Tabu storedGame = storageService.getTabu(gameId);
+            Whoami storedGame = storageService.getWhoami(gameId);
             if (storedGame.isRoundRunning()) {
                 return Response.status(Response.Status.CONFLICT).build();
             }
             storedGame.addOrRemovePointForPlayer(playerId, 1);
-            storageService.storeTabu(storedGame);
+            storageService.storeWhoami(storedGame);
             broadcast("PULL");
             LOGGER.info("added point for player " + playerId);
             return Response.ok(storedGame).build();
@@ -154,12 +152,12 @@ public class TabuResource {
     @Path("{gameid}/points-/{playerid}")
     public Response removePoint(@PathParam("gameid") String gameId, @PathParam("playerid") String playerId) {
         try {
-            Tabu storedGame = storageService.getTabu(gameId);
+            Whoami storedGame = storageService.getWhoami(gameId);
             if (storedGame.isRoundRunning()) {
                 return Response.status(Response.Status.CONFLICT).build();
             }
             storedGame.addOrRemovePointForPlayer(playerId, -1);
-            storageService.storeTabu(storedGame);
+            storageService.storeWhoami(storedGame);
             broadcast("PULL");
             LOGGER.info("removed point for player " + playerId);
             return Response.ok(storedGame).build();
@@ -169,49 +167,14 @@ public class TabuResource {
         }
     }
 
-    @PATCH
-    @Path("{gameid}/countdown+")
-    public Response addCountDown(@PathParam("gameid") String gameId) {
-        try {
-            Tabu storedGame = storageService.getTabu(gameId);
-            if (storedGame.isRoundRunning()) {
-                return Response.status(Response.Status.CONFLICT).build();
-            }
-            storedGame.addOrRemoveCountDown(5);
-            storageService.storeTabu(storedGame);
-            broadcast("PULL");
-            return Response.ok(storedGame).build();
-        } catch (IOException ex) {
-            LOGGER.error("...", ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @PATCH
-    @Path("{gameid}/countdown-")
-    public Response removeCountDown(@PathParam("gameid") String gameId) {
-        try {
-            Tabu storedGame = storageService.getTabu(gameId);
-            if (storedGame.isRoundRunning()) {
-                return Response.status(Response.Status.CONFLICT).build();
-            }
-            storedGame.addOrRemoveCountDown(-5);
-            storageService.storeTabu(storedGame);
-            broadcast("PULL");
-            return Response.ok(storedGame).build();
-        } catch (IOException ex) {
-            LOGGER.error("...", ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
 
     @PATCH
     @Path("{gameid}/stopround")
     public Response stopRound(@PathParam("gameid") String gameId) {
         try {
-            Tabu storedGame = storageService.getTabu(gameId);
+            Whoami storedGame = storageService.getWhoami(gameId);
             storedGame.stopRound();
-            storageService.storeTabu(storedGame);
+            storageService.storeWhoami(storedGame);
             broadcast("PULL");
             LOGGER.info("Stopped round");
             return Response.ok(storedGame).build();
@@ -225,12 +188,12 @@ public class TabuResource {
     @Path("{gameid}/nextround")
     public Response nextround(@PathParam("gameid") String gameId) {
         try {
-            Tabu storedGame = storageService.getTabu(gameId);
+            Whoami storedGame = storageService.getWhoami(gameId);
             if (storedGame.isRoundRunning()) {
                 return Response.status(Response.Status.CONFLICT).build();
             }
             storedGame.nextRound();
-            storageService.storeTabu(storedGame);
+            storageService.storeWhoami(storedGame);
             broadcast("PULL");
             LOGGER.info("Next round");
             return Response.ok(storedGame).build();
@@ -240,15 +203,16 @@ public class TabuResource {
         }
     }
     
-    @POST
-    @Path("{gameid}/nextcard")
-    public Response nextCard(@PathParam("gameid") String gameId) {
+  
+    @PATCH
+    @Path("{gameid}/{playerid}/{figure}")
+    public Response addFigureForPlayer(@PathParam("gameid") String gameId, @PathParam("playerid") String playerId, @PathParam("figure") String figure) {
         try {
-            Tabu storedGame = storageService.getTabu(gameId);
-            storedGame.nextCard();
-            storageService.storeTabu(storedGame);
-            broadcast("PULL_IF_MASTER");
-            LOGGER.info("Next card");
+            Whoami storedGame = storageService.getWhoami(gameId);
+            storedGame.addPersonalFigureForPlayer(playerId, figure);
+            storageService.storeWhoami(storedGame);
+            broadcast("PULL");
+            LOGGER.info("added point for player " + playerId);
             return Response.ok(storedGame).build();
         } catch (IOException ex) {
             LOGGER.error("...", ex);
@@ -256,27 +220,11 @@ public class TabuResource {
         }
     }
     
-    @POST
-    @Path("{gameid}/intervene")
-    public Response intervene(@PathParam("gameid") String gameId) {
-        try {
-            Tabu storedGame = storageService.getTabu(gameId);
-            storedGame.nextCard();
-            storageService.storeTabu(storedGame);
-            broadcast("INTERVENE");
-            LOGGER.info("Intervene");
-            return Response.ok(storedGame).build();
-        } catch (IOException ex) {
-            LOGGER.error("...", ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
     @GET
     @Path("all")
     public Response getAll() {
         try {
-            List<Tabu> storedGames = storageService.getAllTabuGames();
+            List<Whoami> storedGames = storageService.getAllWhoamiGames();
             return Response.ok(storedGames).build();
         } catch (IOException ex) {
             LOGGER.error("...", ex);
@@ -290,7 +238,7 @@ public class TabuResource {
             @javax.websocket.server.PathParam("gameid") String username) throws IOException {
 
         this.session = session;
-        tabuEndpoints.add(this);
+        whoamiEndpoints.add(this);
         users.put(session.getId(), username);
 
         broadcast("On open");
@@ -304,7 +252,7 @@ public class TabuResource {
 
     @OnClose
     public void onClose(Session session) throws IOException {
-        tabuEndpoints.remove(this);
+        whoamiEndpoints.remove(this);
         broadcast("Disconnectd");
     }
 
@@ -315,7 +263,7 @@ public class TabuResource {
 
     private static void broadcast(String message) throws IOException {
 
-        tabuEndpoints.forEach(endpoint -> {
+        whoamiEndpoints.forEach(endpoint -> {
             synchronized (endpoint) {
                 try {
                     endpoint.session.getBasicRemote().
