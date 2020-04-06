@@ -4,6 +4,7 @@ import de.homuth.games.server.model.Player;
 import de.homuth.games.server.model.tabu.Tabu;
 import de.homuth.games.server.services.StorageService;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -64,9 +65,12 @@ public class TabuResource {
     @GET
     @Path("{gameid}")
     public Response get(@PathParam("gameid") String gameId) {
+        Calendar requestStart = Calendar.getInstance();
         try {
             Tabu storedGame = storageService.getTabu(gameId);
             storedGame.setCards(Collections.EMPTY_LIST);
+            Calendar requestEnd = Calendar.getInstance();
+            LOGGER.info("Read game within "+(requestEnd.getTimeInMillis()-requestStart.getTimeInMillis())+" milliseconds");
             return Response.ok(storedGame).build();
         } catch (IOException ex) {
             LOGGER.error("...", ex);

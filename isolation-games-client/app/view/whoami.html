@@ -85,11 +85,13 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-9">
-                                        <input data-ng-show="player.id !== playerdata.id" class="form-control" type="text" data-ng-disabled="gamedata.roundRunning" data-ng-model="gamedata.playerToPersonMapping[player.id]" placeholder="Person/Figur die zu erraten ist"/>
+                                        <input data-ng-show="meResponsibleForPlayer(player) && !gamedata.roundRunning" class="form-control" type="text" data-ng-model="personalFigure.name" placeholder="Bitte trage die Person/Figur ein die zu erraten ist."/>
+                                        <input data-ng-show="gamedata.roundRunning && player.id !== playerdata.id" class="form-control" type="text" data-ng-model="gamedata.playerToPersonMapping[player.id]" data-ng-disabled="true"/>
+                                        <input data-ng-show="!gamedata.roundRunning && player.id !== playerdata.id && !meResponsibleForPlayer(player)" class="form-control" type="text" data-ng-model="gamedata.playerToPersonMapping[player.id]" data-ng-disabled="true" placeholder="Das macht ein anderer Spieler"/>
                                         <input data-ng-show="player.id === playerdata.id" class="form-control" type="text" value="Verdeckt...." data-ng-disabled="true"/>
                                     </div>
                                     <div class="col-3">
-                                        <button data-ng-show="player.id !== playerdata.id" type="button" class="btn btn-success" data-ng-click="addFigureForPlayer(player.id)">OK</button>
+                                        <button data-ng-show="!gamedata.roundRunning && meResponsibleForPlayer(player)" type="button" class="btn btn-success" data-ng-click="addFigureForPlayer(player.id)">OK</button>
                                     </div>
                                 </div>
                                 <hr>
@@ -99,20 +101,83 @@
                 </div>
             </div>
         </div>
-        <br>
-            <div class="row">                    
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Notizen für sich</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="input-group">
-                                <textarea class="form-control" aria-label="With textarea"></textarea>
-                            </div>
+        <br/>
+        <div class="row">                    
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Notizen für sich</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="input-group">
+                            <textarea class="form-control" aria-label="With textarea"></textarea>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+        <div data-ng-show="meMaster">
+            <br></br>
+            <div class="row" >                    
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-12">
+                                    <h3>Runde</h3>
+                                </div>                               
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <button data-ng-show="!gamedata.roundRunning" type="button" class="btn btn-success" data-ng-click="nextround()">Nächste Runde starten</button>
+                            <button data-ng-show="gamedata.roundRunning" type="button" class="btn btn-warning" data-ng-click="stopRound()">Runde beenden</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br/>
+        <div class="row">                    
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Spieler</h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Punkte</th>
+                                    <th data-ng-show="meMaster">Aktionen</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr data-ng-repeat="player in gamedata.players">
+                                    <td scope="row" data-ng-class="{boldgreen:player.id === gamedata.actualPlayer.id}">{{player.name}}</td>
+                                    <td>{{player.points}}</td>
+                                    <td  data-ng-show="meMaster">
+                                        <div class="btn-group pull-right">
+                                            <a class="btn btn-danger" data-toggle="tooltip" data-ng-show="meMaster && player.id !== playerdata.id && !gamedata.roundRunning" data-placement="top" title="Entfernen" data-ng-click="removePlayerFromGame(player)">
+                                                <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                            </a>                                                                                                                                                                      
+                                            <a class="btn btn-success" data-toggle="tooltip" data-ng-show="meMaster && player.id !== playerdata.id && !gamedata.roundRunning" data-placement="top" title="Zum Master machen" data-ng-click="makePlayerToMaster(player)">
+                                                <i class="fa fa-gavel" aria-hidden="true"></i>
+                                            </a>                                                                                                                                                                      
+                                            <a class="btn btn-warning" data-toggle="tooltip" data-ng-show="meMaster && !gamedata.roundRunning" data-placement="top" title="Punkt geben" data-ng-click="addPointToPlayer(player)">
+                                                <i class="fa fa-hand-o-up" aria-hidden="true"></i>
+                                            </a>                                                                                                                                                                      
+                                            <a class="btn btn-warning" data-toggle="tooltip" data-ng-show="meMaster && !gamedata.roundRunning" data-placement="top" title="Punkt abziehen" data-ng-click="removePointFromPlayer(player)">
+                                                <i class="fa fa-hand-o-down" aria-hidden="true"></i>
+                                            </a>                                                                                                                                                                      
+                                        </div>
+                                    </td>
+                                </tr>                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

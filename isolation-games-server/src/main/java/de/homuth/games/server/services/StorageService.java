@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -103,7 +104,7 @@ public class StorageService {
      * @return
      */
     public Tabu storeTabu(Tabu tabu) throws IOException {
-        LOGGER.info("Stored tabu game");
+        Calendar start = Calendar.getInstance();
         if (tabu == null) {
             throw new IllegalArgumentException("The game to store must not be null");
         }
@@ -144,6 +145,8 @@ public class StorageService {
         mapper.writeValue(tmpTabu, tabu);
         Files.move(tmpTabu.toPath(), tabuFile.toPath(), StandardCopyOption.ATOMIC_MOVE);
         tmpTabu.deleteOnExit();
+        Calendar end = Calendar.getInstance();
+        LOGGER.debug("Storing tabu game lasted "+(end.getTimeInMillis() - start.getTimeInMillis())+" millis");
         return tabu;
     }
     /**

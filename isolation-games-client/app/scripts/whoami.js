@@ -18,7 +18,8 @@ angular.module('myApp.whoami', ['ngRoute'])
                 $scope.gamedata = {};
                 $scope.allGames = [];
                 $scope.meMaster = false;
-                
+                $scope.personalFigure = {};
+
                 $scope.createNewGame = function () {
                     console.info("New game", $scope.newGame);
                     $http({
@@ -33,12 +34,12 @@ angular.module('myApp.whoami', ['ngRoute'])
                         $scope.errorData = response.data;
                     });
                 };
-                
+
                 $scope.addFigureForPlayer = function (playerid) {
                     $http({
                         method: 'PATCH',
                         headers: {'Content-Type': 'application/json'},
-                        url: UrlInjector.getBaseURL() + '/api/whoami/'+$scope.gameid+"/"+playerid+"/"+$scope.gamedata.playerToPersonMapping[playerid]
+                        url: UrlInjector.getBaseURL() + '/api/whoami/' + $scope.gameid + "/" + playerid + "/" + $scope.personalFigure.name
                     }).then(function successCallback(response) {
                         $scope.gamedata = response.data;
                     }, function errorCallback(response) {
@@ -74,6 +75,8 @@ angular.module('myApp.whoami', ['ngRoute'])
                             if (!foundPlayer) {
                                 addPlayerToGame();
                             }
+                            
+                            checkForMaster();
                         }, function errorCallback(response) {
                             $scope.errorData = response.data;
                         });
@@ -109,7 +112,6 @@ angular.module('myApp.whoami', ['ngRoute'])
                 };
 
                 $scope.stopRound = function () {
-                    $scope.cancelCountDowns();
                     if ($scope.gameid) {
                         $http({
                             method: 'PATCH',
@@ -138,8 +140,6 @@ angular.module('myApp.whoami', ['ngRoute'])
                 };
 
                 $scope.nextround = function () {
-                    $scope.countdownSeconds = $scope.gamedata.roundLength;
-                    $scope.cancelCountDowns();
                     if ($scope.gameid) {
                         $http({
                             method: 'POST',
@@ -151,7 +151,15 @@ angular.module('myApp.whoami', ['ngRoute'])
                         });
                     }
                 };
-                
+
+                $scope.meResponsibleForPlayer = function (player) {
+                    if ($scope.gamedata && $scope.gamedata.playerToResponsiblePlayerMapping) {
+                        return $scope.gamedata.playerToResponsiblePlayerMapping[$rootScope.playerdata.id] === player.id;
+                    }else{
+                        return false;
+                    }
+                }
+
                 /**
                  * Method will redirect to home location
                  * @returns {undefined}
@@ -176,7 +184,7 @@ angular.module('myApp.whoami', ['ngRoute'])
                 $scope.getGame();
 
 
-                var ws = $websocket("ws://"+UrlInjector.getWSBaseURL() + "/whoami");
+                var ws = $websocket("ws://" + UrlInjector.getWSBaseURL() + "/whoami");
                 ws.onMessage(function (event) {
                     if (event && event.data) {
                         if (event.data === "PULL") {
@@ -200,7 +208,7 @@ angular.module('myApp.whoami', ['ngRoute'])
                 $scope.showCreateGameModal = function () {
                     $('#createGameModal').modal('show');
                 };
-                
+
                 var addPlayerToGame = function () {
                     if ($scope.gameid) {
                         console.info("Play", $rootScope.playerdata)
@@ -214,6 +222,17 @@ angular.module('myApp.whoami', ['ngRoute'])
                         }, function errorCallback(response) {
                             $scope.errorData = response.data;
                         });
+                    }
+                };
+                
+                var checkForMaster = function () {
+                    $scope.meMaster = false;
+                    if ($rootScope.playerdata) {
+                        angular.forEach($scope.gamedata.players, function (p) {
+                            if (p.id === $rootScope.playerdata.id && p.master === true) {
+                                $scope.meMaster = true;
+                            }
+                        })
                     }
                 };
             }]);

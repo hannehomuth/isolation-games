@@ -72,6 +72,9 @@ public class Tabu extends Game {
      */
     @JsonIgnore
     private void switchToNextPlayer() {
+        if(getPlayers().size() < 2){
+            return;
+        }
         playerNumber++;
         if (playerNumber > getPlayers().size()) {
             playerNumber = 1;
