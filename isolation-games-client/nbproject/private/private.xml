@@ -2,6 +2,16 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/view/gamechoose.html</file>
+            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/scripts/gamechoose.js</file>
+            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/view/whoami.html</file>
+            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/scripts/tabu.js</file>
+            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/view/tabu.html</file>
+            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/index.html</file>
+            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/scripts/player.js</file>
+            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/scripts/whoami.js</file>
+            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/app.js</file>
+        </group>
     </open-files>
 </project-private>

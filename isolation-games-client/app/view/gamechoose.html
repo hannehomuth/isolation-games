@@ -1,0 +1,75 @@
+<div ng-controller="PlayerCtrl">
+    <nav class="navbar navbar-light bg-light">
+        <span class="navbar-brand mb-0 h1">Isolation Games</span>
+        <form class="form-inline my-2 my-lg-0">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <svg data-ng-click="openUserEdit()" class="bi bi-people-circle" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13.468 12.37C12.758 11.226 11.195 10 8 10s-4.757 1.225-5.468 2.37A6.987 6.987 0 008 15a6.987 6.987 0 005.468-2.63z"/>
+                    <path fill-rule="evenodd" d="M8 9a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                    <path fill-rule="evenodd" d="M8 1a7 7 0 100 14A7 7 0 008 1zM0 8a8 8 0 1116 0A8 8 0 010 8z" clip-rule="evenodd"/>
+                </svg>  
+            </button>
+        </form>
+    </nav>
+
+    <div id="createPlayerModal" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Spieler anlegen</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Du scheinst neu hier zu sein, bitte lege kurz deine Daten an</p>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" data-ng-model="playerdata.name" placeholder="Dein Name" aria-label="Username" aria-describedby="basic-addon1">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-ng-click="createOrUpdatePlayer()">Spieler anlegen</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <h5 class="card-header">Tabu</h5>
+                    <div class="card-body">
+                        <p class="card-text">Das Spiel dreht sich um das Erklären von Begriffen. Bei dem beliebten Partyspiel, an dem beliebig viele Personen teilnehmen können, erklärt ein Spieler seiner Mannschaft einen Begriff und darf dabei weder eines der fünf Tabuwörter verwenden, noch einen Bestandteil des gesuchten Wortes</p>
+                        <a href="#!/tabu" class="btn btn-primary">Spielen</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br/>
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <h5 class="card-header">Wer bin ich?</h5>
+                    <div class="card-body">
+                        <p class="card-text">Das Spiel Wer bin ich? (auch Zettel vorm Kopf und Brett vorm Kopf genannt) ist ein Ratespiel, bei dem die Mitspieler eine bestimmte Person (oder auch Tier, Gegenstand etc.) verkörpern und durch geschicktes, deduktives Fragen herauszufinden suchen, wen oder was sie darstellen.</p>
+                        <a href="#!/whoami" class="btn btn-primary">Spielen</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br/>
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <h5 class="card-header">Montagsmaler</h5>
+                    <div class="card-body">
+                        <p class="card-text">Ein Mitspieler denkt sich einen Gegenstand aus der gemalt werden soll und wählt einen Mitspieler der ihn malt. Alle anderen müssen nun erraten, welchen Gegenstand er malt. Wer am meisten geraten hat, hat gewonnen.</p>
+                        <a href="#" class="btn btn-primary">Coming soon</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

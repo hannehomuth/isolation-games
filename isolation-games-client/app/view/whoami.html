@@ -66,8 +66,6 @@
             </div>
         </div>
     </div>
-
-
     <div data-ng-show="gamedata.id" class="container-fluid">
         <div class="row">
             <div class="col-12">
@@ -80,7 +78,7 @@
                             <div class="col-12">
                                 <div class="row">
                                     <div class="col-12">
-                                        {{player.name}}
+                                        <p data-ng-class="{boldgreen:player.id === gamedata.actualPlayer.id}">{{player.name}}</p>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -101,21 +99,7 @@
                 </div>
             </div>
         </div>
-        <br/>
-        <div class="row">                    
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Notizen für sich</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="input-group">
-                            <textarea class="form-control" aria-label="With textarea"></textarea>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <br/>        
         <div data-ng-show="meMaster">
             <br></br>
             <div class="row" >                    
@@ -130,7 +114,23 @@
                         </div>
                         <div class="card-body">
                             <button data-ng-show="!gamedata.roundRunning" type="button" class="btn btn-success" data-ng-click="nextround()">Nächste Runde starten</button>
-                            <button data-ng-show="gamedata.roundRunning" type="button" class="btn btn-warning" data-ng-click="stopRound()">Runde beenden</button>
+                            <button data-ng-show="gamedata.roundRunning" type="button" class="btn btn-danger" data-ng-click="stopRound()">Runde beenden</button>
+                            <button data-ng-show="gamedata.roundRunning" type="button" class="btn btn-success" data-ng-click="switchPlayer()">Nächster Spieler</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br/>
+        <div class="row">                    
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Notizen für sich</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="input-group">
+                            <textarea class="form-control" style="min-height: 250px" aria-label="With textarea" data-ng-model="notes.value"></textarea>
                         </div>
                     </div>
                 </div>

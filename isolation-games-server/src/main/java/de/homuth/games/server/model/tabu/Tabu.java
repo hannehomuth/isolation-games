@@ -23,10 +23,7 @@ public class Tabu extends Game {
      */
     private List<TabuCard> cards;
 
-    /**
-     * The number of the player which has the turn in the actual round
-     */
-    private int playerNumber;
+   
 
     private TabuCard acutalCard;
 
@@ -37,7 +34,7 @@ public class Tabu extends Game {
      */
     public void nextRound() {
         setStarted(true);
-        switchToNextPlayer();
+        switchToNextPlayer(Boolean.FALSE);
         switchTabuCard();
 
         Calendar nextRoundStartCal = Calendar.getInstance();
@@ -65,28 +62,7 @@ public class Tabu extends Game {
         setLastModified(new Date());
     }
 
-    /**
-     * Gets the next player
-     *
-     * @return
-     */
-    @JsonIgnore
-    private void switchToNextPlayer() {
-        if(getPlayers().size() < 2){
-            return;
-        }
-        playerNumber++;
-        if (playerNumber > getPlayers().size()) {
-            playerNumber = 1;
-        }
-        Player ap = getPlayers().get((playerNumber - 1));
-        if(ap.isMaster()){
-            switchToNextPlayer();
-        }else{
-            setActualPlayer(ap);            
-        }
-    }
-
+    
     /**
      * Gets the next tabu card
      *
@@ -116,24 +92,6 @@ public class Tabu extends Game {
      */
     public void setAcutalCard(TabuCard acutalCard) {
         this.acutalCard = acutalCard;
-    }
-
-    /**
-     * Get the value of playerNumber
-     *
-     * @return the value of playerNumber
-     */
-    public int getPlayerNumber() {
-        return playerNumber;
-    }
-
-    /**
-     * Set the value of playerNumber
-     *
-     * @param playerNumber new value of playerNumber
-     */
-    public void setPlayerNumber(int playerNumber) {
-        this.playerNumber = playerNumber;
     }
 
     /**

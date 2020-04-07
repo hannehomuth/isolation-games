@@ -6,10 +6,11 @@ angular.module('myApp', [
   'ngWebSocket',
   'myApp.tabu',
   'myApp.whoami',
+  'myApp.gamechoose',
   'myApp.player'
 ]).
 config(['$locationProvider', '$routeProvider', function($locationProvider, $routeProvider) {
   $locationProvider.hashPrefix('!');
 
-  $routeProvider.otherwise({redirectTo: '/tabu'});
+  $routeProvider.otherwise({redirectTo: '/'});
 }]);

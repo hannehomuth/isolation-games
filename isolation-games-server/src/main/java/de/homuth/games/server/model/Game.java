@@ -28,6 +28,10 @@ public class Game {
     private int roundLength;
 
     private boolean roundRunning;
+     /**
+     * The number of the player which has the turn in the actual round
+     */
+    private int playerNumber;
 
     /**
      * Get the value of roundRunning
@@ -151,6 +155,29 @@ public class Game {
             roundLength = 5;
         }
     }
+    
+    /**
+     * Gets the next player
+     *
+     * @return
+     */
+    @JsonIgnore
+    protected void switchToNextPlayer(boolean masterCanPlay) {
+        if(getPlayers().size() < 2){
+            return;
+        }
+        playerNumber++;
+        if (playerNumber > getPlayers().size()) {
+            playerNumber = 1;
+        }
+        Player ap = getPlayers().get((playerNumber - 1));
+        if(ap.isMaster() && !masterCanPlay){
+            switchToNextPlayer(masterCanPlay);
+        }else{
+            setActualPlayer(ap);            
+        }
+    }
+
 
     /**
      * Get the value of name
@@ -294,6 +321,24 @@ public class Game {
      */
     public void setRoundLength(int roundLength) {
         this.roundLength = roundLength;
+    }
+    
+     /**
+     * Get the value of playerNumber
+     *
+     * @return the value of playerNumber
+     */
+    public int getPlayerNumber() {
+        return playerNumber;
+    }
+
+    /**
+     * Set the value of playerNumber
+     *
+     * @param playerNumber new value of playerNumber
+     */
+    public void setPlayerNumber(int playerNumber) {
+        this.playerNumber = playerNumber;
     }
 
 }

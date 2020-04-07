@@ -203,6 +203,25 @@ public class WhoamiResource {
         }
     }
     
+    @POST
+    @Path("{gameid}/switchPlayer")
+    public Response switchPlayer(@PathParam("gameid") String gameId) {
+        try {
+            Whoami storedGame = storageService.getWhoami(gameId);
+            if (!storedGame.isRoundRunning()) {
+                return Response.status(Response.Status.CONFLICT).build();
+            }
+            storedGame.switchPlayer();
+            storageService.storeWhoami(storedGame);
+            broadcast("PULL");
+            LOGGER.info("Next round");
+            return Response.ok(storedGame).build();
+        } catch (IOException ex) {
+            LOGGER.error("...", ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
   
     @PATCH
     @Path("{gameid}/{playerid}/{figure}")

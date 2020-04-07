@@ -8,9 +8,9 @@ package de.homuth.games.server.model.whoami;
 import de.homuth.games.server.model.Game;
 import de.homuth.games.server.model.Player;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 /**
  *
@@ -72,7 +72,12 @@ public class Whoami extends Game {
     }
     public void nextRound(){
         setRoundRunning(true);
-        
+        ArrayList<Player> values = new ArrayList<>(getPlayers().values());
+        setActualPlayer(values.get(new Random().nextInt(values.size())));
+    }
+    
+    public void switchPlayer(){
+        switchToNextPlayer(Boolean.TRUE);
     }
     
     /**
