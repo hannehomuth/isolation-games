@@ -1,13 +1,13 @@
 <div ng-controller="PlayerCtrl">
     <nav class="navbar navbar-light bg-light">
-        <span class="navbar-brand mb-0 h1">Tabu</span>
+        <span class="navbar-brand mb-0 h1">Montagsmaler</span>
         <form class="form-inline my-2 my-lg-0">
             <div class="btn-group" style="padding-right: 10px;">
                 <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     {{gamedata.name|| 'Bitte Spielgruppe wählen'}}
                 </button>
                 <div class="dropdown-menu">
-                    <a data-ng-repeat="g in allGames" class="dropdown-item" href="/#!tabu/{{g.id}}">{{g.name}}</a>
+                    <a data-ng-repeat="g in allGames" class="dropdown-item" href="/#!whoami/{{g.id}}">{{g.name}}</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" data-ng-click="showCreateGameModal()">Neue Runde anlegen</a>
                 </div>
@@ -21,30 +21,6 @@
             </button>
         </form>
     </nav>
-
-    <div id="interveneModal" class="modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2 class="modal-title" style="margin: 0 auto;"  id="exampleModalLabel">!!Intervention!!</h2>
-                </div>
-                <div class="modal-body">
-                    <img src="../images/tabu_squeeze.png" class="rounded mx-auto d-block" alt="Quietscher">
-                </div>
-            </div>
-        </div>
-    </div>
-    <div id="roundStartModal" class="modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-body">
-                    <h2 data-ng-show="(playerdata.id === gamedata.actualPlayer.id)" class="modal-title red"  style="text-align: center" id="exampleModalLabel">Deine Runde beginnt in</h2>
-                    <h2 data-ng-show="(playerdata.id !== gamedata.actualPlayer.id)" class="modal-title"  style="text-align: center" id="exampleModalLabel">Runde von {{gamedata.actualPlayer.name}} beginnt in</h2>
-                    <h1 style="font-size: 12em; text-align: center">{{countdownMessage| number:0}}</h1>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div id="createPlayerModal" class="modal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
@@ -90,53 +66,26 @@
             </div>
         </div>
     </div>
-    <div data-ng-show="gamedata.id" class="container-fluid">
-        <div class="row">           
+    <div class="container-fluid">
+        <canvas style="background-color: white  " style="border: 1px solid;"id="sketchpad" height="500px" width="500px">
+        </canvas>
+        <table>
+            <tr>
+                <td>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-primary"></button>
+                    <button type="button" class="btn btn-secondary"></button>
+                    <button type="button" class="btn btn-success"></button>
+                </td>
+            </tr>
+        </table>
+        <div class="row">
             <div class="col-12">
-                <div class="card" data-ng-show="inGameRoundRunning() && (meMaster  || playerdata.id === gamedata.actualPlayer.id)">
-                    <div class="card-header">
-                        <div class="row">
-                            <div class="col-9"><h3 data-ng-class="{midnightblue:gamedata.roundRunning}">{{gamedata.acutalCard.term}}</h3></div>
-                            <div class="col-3">                                
-                                <h3 class="pull-right midnightblue" data-ng-class="{'red':countdownSeconds < 10}">{{countdownSeconds| number:0}}</i></h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item red" data-ng-repeat="ph in gamedata.acutalCard.prohibitedWords"><h4>{{ph}}</h4></li>
-                            <li data-ng-show="playerdata.id === gamedata.actualPlayer.id" class="list-group-item"><button type="button" class="btn btn-warning btn-lg btn-block" data-ng-click="nextcard()">Nächste Karte</button></li>
-                            <li data-ng-show="meMaster" class="list-group-item"><button type="button" class="btn btn-danger btn-lg btn-block" data-ng-click="intervene()">Intervenieren</button></li>
-                        </ul>                   
-                    </div>
-                </div>
-                <div class="card" data-ng-show="(playerdata.id !== gamedata.actualPlayer.id) && inGameRoundRunning() && !meMaster">
-                    <div class="card-header">
-                        <div class="row">
-                            <div class="col-9"><h3>{{gamedata.actualPlayer.name}}'s Karte</h3></div>
-                            <div class="col-3">
-                                <h3 class="pull-right midnightblue" data-ng-class="{'red':countdownSeconds < 10}">{{countdownSeconds| number:0}}</i></h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item red" data-ng-repeat="ph in gamedata.acutalCard.prohibitedWords"><h4>* * * * * * * * * * *</h4></li>
-                        </ul>                   
-                    </div>
-                </div>
-                <div class="card" data-ng-show="!gamedata.roundRunning">
-                    <div class="card-header">
-                        <div class="row">
-                            <div class="col-9"><h3>Runde beendet</h3></div>
-                            <div class="col-3">
-                                <h3 class="pull-right"><i class="fa fa-flag-checkered" aria-hidden="true"></i></h3>                            
-                            </div>
-                        </div>
-                    </div>                    
-                </div>                
-            </div>            
+
+            </div>
         </div>
+        <br/>        
         <div data-ng-show="meMaster">
             <br></br>
             <div class="row" >                    
@@ -144,23 +93,21 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="row">
-                                <div class="col-8">
+                                <div class="col-12">
                                     <h3>Runde</h3>
-                                </div>
-                                <div class="col-4">
-                                    <i class="fa fa-2x fa-file-image-o pull-right" aria-hidden="true">  {{gamedata.remainingCards|| 'Unbekannt'}}</i>
-                                </div>
+                                </div>                               
                             </div>
                         </div>
                         <div class="card-body">
                             <button data-ng-show="!gamedata.roundRunning" type="button" class="btn btn-success" data-ng-click="nextround()">Nächste Runde starten</button>
-                            <button data-ng-show="gamedata.roundRunning" type="button" class="btn btn-warning" data-ng-click="stopRound()">Runde beenden</button>
+                            <button data-ng-show="gamedata.roundRunning" type="button" class="btn btn-danger" data-ng-click="stopRound()">Runde beenden</button>
+                            <button data-ng-show="gamedata.roundRunning" type="button" class="btn btn-success" data-ng-click="switchPlayer()">Nächster Spieler</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <br></br>
+        <br/>
         <div class="row">                    
             <div class="col-12">
                 <div class="card">
@@ -196,21 +143,7 @@
                                             </a>                                                                                                                                                                      
                                         </div>
                                     </td>
-                                </tr>
-                                <tr data-ng-show="meMaster">
-                                    <td>Countdown</td>
-                                    <td>{{gamedata.roundLength}}</td>
-                                    <td>
-                                        <div class="btn-group pull-right">
-                                            <a class="btn btn-warning" data-toggle="tooltip" data-ng-show="meMaster && !gamedata.roundRunning" data-placement="top" title="Punkt geben" data-ng-click="addCountDownTime()">
-                                                <i class="fa fa-hand-o-up" aria-hidden="true"></i>
-                                            </a>                                                                                                                                                                      
-                                            <a class="btn btn-warning" data-toggle="tooltip" data-ng-show="meMaster && !gamedata.roundRunning" data-placement="top" title="Punkt abziehen" data-ng-click="removeCountDownTime()">
-                                                <i class="fa fa-hand-o-down" aria-hidden="true"></i>
-                                            </a>  
-                                        </div>
-                                    </td>
-                                </tr>
+                                </tr>                                
                             </tbody>
                         </table>
                     </div>

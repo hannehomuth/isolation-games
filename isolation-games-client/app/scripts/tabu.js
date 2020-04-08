@@ -426,7 +426,7 @@ angular.module('myApp.tabu', ['ngRoute'])
                 };
 
                 var addPlayerToGame = function () {
-                    if ($scope.gameid) {
+                    if ($scope.gameid && $rootScope.playerdata.name) {
                         console.info("Play", $rootScope.playerdata)
                         $http({
                             method: 'PATCH',

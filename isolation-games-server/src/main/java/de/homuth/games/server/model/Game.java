@@ -1,15 +1,20 @@
 package de.homuth.games.server.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.homuth.games.server.model.tabu.Tabu;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author jhomuth
  */
 public class Game {
+
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Game.class);
 
     private String name;
 
@@ -28,7 +33,7 @@ public class Game {
     private int roundLength;
 
     private boolean roundRunning;
-     /**
+    /**
      * The number of the player which has the turn in the actual round
      */
     private int playerNumber;
@@ -97,8 +102,7 @@ public class Game {
     }
 
     @JsonIgnore
-    public void removePlayer(String playerID
-    ) {
+    public void removePlayer(String playerID) {
         int pos = -1;
         if (players == null) {
             players = new HashMap<>();
@@ -155,7 +159,7 @@ public class Game {
             roundLength = 5;
         }
     }
-    
+
     /**
      * Gets the next player
      *
@@ -163,21 +167,43 @@ public class Game {
      */
     @JsonIgnore
     protected void switchToNextPlayer(boolean masterCanPlay) {
-        if(getPlayers().size() < 2){
+        if (getPlayers().size() < 2) {
             return;
         }
+
         playerNumber++;
-        if (playerNumber > getPlayers().size()) {
+        LOGGER.info("Player Number is now ("+playerNumber+")");
+        if ((playerNumber) > getMaxPlayerNumber()) {
+            LOGGER.info("Player Number ("+(playerNumber)+") greater than max  ("+getMaxPlayerNumber()+")");
             playerNumber = 1;
         }
         Player ap = getPlayers().get((playerNumber - 1));
-        if(ap.isMaster() && !masterCanPlay){
+        if (ap == null) {
+            LOGGER.info("No Player found with ("+playerNumber+")");            
+            /* Player may be removed. */
             switchToNextPlayer(masterCanPlay);
-        }else{
-            setActualPlayer(ap);            
+            return;
+        }
+        if (ap.isMaster() && !masterCanPlay) {
+            LOGGER.info("Player is master but not allowed to play ("+playerNumber+")");
+            switchToNextPlayer(masterCanPlay);
+            return;
+        } else {
+            LOGGER.info("Player found ("+playerNumber+")");
+            setActualPlayer(ap);
         }
     }
 
+    private int getMaxPlayerNumber() {
+        int n = 0;
+        for (Integer integer : getPlayers().keySet()) {
+            if (n < integer) {
+                n = integer;
+            }
+        }
+        n++;
+        return n;
+    }
 
     /**
      * Get the value of name
@@ -322,8 +348,8 @@ public class Game {
     public void setRoundLength(int roundLength) {
         this.roundLength = roundLength;
     }
-    
-     /**
+
+    /**
      * Get the value of playerNumber
      *
      * @return the value of playerNumber

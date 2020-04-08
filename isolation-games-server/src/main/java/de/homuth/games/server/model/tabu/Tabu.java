@@ -23,8 +23,6 @@ public class Tabu extends Game {
      */
     private List<TabuCard> cards;
 
-   
-
     private TabuCard acutalCard;
 
     private int remainingCards;

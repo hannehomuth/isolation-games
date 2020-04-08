@@ -6,6 +6,7 @@ angular.module('myApp', [
   'ngWebSocket',
   'myApp.tabu',
   'myApp.whoami',
+  'myApp.painter',
   'myApp.gamechoose',
   'myApp.player'
 ]).
