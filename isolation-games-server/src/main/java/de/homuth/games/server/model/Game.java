@@ -189,8 +189,13 @@ public class Game {
             switchToNextPlayer(masterCanPlay);
             return;
         } else {
-            LOGGER.info("Player found ("+playerNumber+")");
-            setActualPlayer(ap);
+            if(ap.isWantsToPlay()){
+                LOGGER.info("Player found ("+playerNumber+")");
+                setActualPlayer(ap);                
+            }else{
+                switchToNextPlayer(masterCanPlay);                
+            }
+            
         }
     }
 

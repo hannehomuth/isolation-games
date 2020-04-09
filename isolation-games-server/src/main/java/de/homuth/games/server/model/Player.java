@@ -16,6 +16,26 @@ public class Player {
      */
     private boolean master;
 
+    private boolean wantsToPlay = Boolean.TRUE;
+
+    /**
+     * Get the value of wantsToPlay
+     *
+     * @return the value of wantsToPlay
+     */
+    public boolean isWantsToPlay() {
+        return wantsToPlay;
+    }
+
+    /**
+     * Set the value of wantsToPlay
+     *
+     * @param wantsToPlay new value of wantsToPlay
+     */
+    public void setWantsToPlay(boolean wantsToPlay) {
+        this.wantsToPlay = wantsToPlay;
+    }
+
     /**
      * The name of the player
      */

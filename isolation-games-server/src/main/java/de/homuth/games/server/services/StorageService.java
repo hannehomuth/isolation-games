@@ -3,6 +3,8 @@ package de.homuth.games.server.services;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.homuth.games.server.JsonFileFilter;
 import de.homuth.games.server.model.Player;
+import de.homuth.games.server.model.painter.MondayCard;
+import de.homuth.games.server.model.painter.MondayPainter;
 import de.homuth.games.server.model.tabu.Tabu;
 import de.homuth.games.server.model.tabu.TabuCard;
 import de.homuth.games.server.model.whoami.Whoami;
@@ -37,6 +39,7 @@ public class StorageService {
     private static final String GAME_STORAGE_FOLDER = "games";
     private static final String TABU_STORAGE_FOLDER = "tabu";
     private static final String WHOAMI_STORAGE_FOLDER = "whoami";
+    private static final String PAINTER_STORAGE_FOLDER = "painter";
     private static final String TMP_STORAGE_FOLDER = "temporary";
 
     private static final String PLAYER_STORAGE_FOLDER = "player";
@@ -75,6 +78,12 @@ public class StorageService {
         File foodsourceStorageFolder = new File(getStorageFolder(), GAME_STORAGE_FOLDER+"/"+WHOAMI_STORAGE_FOLDER);
         createFolderIfNotExist(foodsourceStorageFolder);
         return foodsourceStorageFolder;
+    }
+    
+    private File getPainterGamesStorageFolder() {
+        File painterStorageFolder = new File(getStorageFolder(), GAME_STORAGE_FOLDER+"/"+PAINTER_STORAGE_FOLDER);
+        createFolderIfNotExist(painterStorageFolder);
+        return painterStorageFolder;
     }
     
     private File getTmpStorageFolder() {
@@ -148,6 +157,50 @@ public class StorageService {
         Calendar end = Calendar.getInstance();
         LOGGER.debug("Storing tabu game lasted "+(end.getTimeInMillis() - start.getTimeInMillis())+" millis");
         return tabu;
+    }
+    /**
+     * Method will store the provided food source to filesystem. If the
+     * foodsource already had an ID, the foodsource with the id will be located,
+     * and overwritten. Otherwise a new ID will be created and setted.
+     *
+     * @param painter
+     * @return
+     */
+    public MondayPainter storePainter(MondayPainter painter) throws IOException {
+        Calendar start = Calendar.getInstance();
+        if (painter == null) {
+            throw new IllegalArgumentException("The game to store must not be null");
+        }
+        if (painter.getId() == null || painter.getId().isEmpty()) {
+            /* Seems to be a new food source. Generate an ID and set it. */
+            painter.setId(UUID.randomUUID().toString());
+            InputStream inputStream = StorageService.class.getClassLoader().getResourceAsStream("painter-cards.csv");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            List<MondayCard> cards = new ArrayList<>();
+            while (reader.ready()) {
+                String line = reader.readLine();
+                if (line != null) {
+                    line = line.replace("\"", "");
+                    MondayCard c = new MondayCard();
+                    c.setId(UUID.randomUUID().toString());
+                    c.setTerm(line);
+                    cards.add(c);
+                }
+            }
+            painter.setCards(cards);
+        }
+
+        File painterFIle = new File(getPainterGamesStorageFolder(), painter.getId() + ".json");
+        File tmpPainter = File.createTempFile("painter", ".tmp", getTmpStorageFolder());
+        painter.setLastModified(new Date());
+        painter.setRemainingCards(painter.getCards().size());
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValue(tmpPainter, painter);
+        Files.move(tmpPainter.toPath(), painterFIle.toPath(), StandardCopyOption.ATOMIC_MOVE);
+        tmpPainter.deleteOnExit();
+        Calendar end = Calendar.getInstance();
+        LOGGER.debug("Storing painter game lasted "+(end.getTimeInMillis() - start.getTimeInMillis())+" millis");
+        return painter;
     }
     /**
      * Method will store the provided food source to filesystem. If the
@@ -235,6 +288,41 @@ public class StorageService {
      * @return
      * @throws IOException
      */
+    public MondayPainter getMondayPainter(String id) throws IOException {
+        if (id == null) {
+            throw new IllegalArgumentException("The game id to collect must not be null");
+        }
+
+        File painterFile = new File(getPainterGamesStorageFolder(), id + ".json");
+        ObjectMapper mapper = new ObjectMapper();
+        int tries = 0;
+        Boolean read = Boolean.FALSE;
+        MondayPainter returnValue = null;
+        while (!read || tries > 5) {
+            tries++;
+            try {
+                returnValue = mapper.readValue(painterFile, MondayPainter.class);
+                read = Boolean.TRUE;
+            } catch (Exception e) {
+                LOGGER.warn("Error during read of file: "+e.getMessage());
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException ex) {
+                    LOGGER.warn("Interprupted during wait");
+                }
+            }
+        }
+        LOGGER.info("Read file after "+tries+" tries");
+        return returnValue;
+    }
+    
+    /**
+     * Method which will get the tabu game with the provided id
+     *
+     * @param id
+     * @return
+     * @throws IOException
+     */
     public Whoami getWhoami(String id) throws IOException {
         if (id == null) {
             throw new IllegalArgumentException("The game id to collect must not be null");
@@ -277,6 +365,15 @@ public class StorageService {
         List<Whoami> list = new ArrayList<>();
         for (File f : storageFolder.listFiles(new JsonFileFilter())) {
             list.add(getWhoami(f.getName().replace(".json", "")));
+        }
+        return list;
+    }
+    
+    public List<MondayPainter> getAllPainterGames() throws IOException {
+        File storageFolder = getPainterGamesStorageFolder();
+        List<MondayPainter> list = new ArrayList<>();
+        for (File f : storageFolder.listFiles(new JsonFileFilter())) {
+            list.add(getMondayPainter(f.getName().replace(".json", "")));
         }
         return list;
     }
