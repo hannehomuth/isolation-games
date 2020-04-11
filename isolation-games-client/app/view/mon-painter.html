@@ -26,11 +26,11 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 class="modal-title" style="margin: 0 auto;"  id="exampleModalLabel">Nächste Karte</h2>
+                    <h2 class="modal-title" style="margin: 0 auto;"  id="exampleModalLabel">{{playerdata.id === gamedata.actualPlayer.id ? ("Nächste Karte " + gamedata.acutalCard.term ): "Begriff " + lastTerm+ " übersprungen"}}</h2>
                 </div>
-                <div class="modal-body">
-                    <p>Vorheriger Begriff: {{lastTerm}}</p>
-                </div>
+    <!--                <div class="modal-body">
+                        <p>Vorheriger Begriff: {{lastTerm}}</p>
+                    </div>-->
             </div>
         </div>
     </div>
@@ -93,66 +93,32 @@
     <div data-ng-show="gamedata.id" class="container-fluid">
         <div class="row">           
             <div class="col-12">
-                <div class="card" data-ng-show="inGameRoundRunning()">
-                    <div class="card-header">
-                        <div class="row">
-                            <div class="col-9">
-                                <h3 data-ng-show="(meMaster || playerdata.id === gamedata.actualPlayer.id)" data-ng-class="{midnightblue:gamedata.roundRunning}">{{gamedata.acutalCard.term}}</h3>
-                                <h3 data-ng-show="(!meMaster && playerdata.id !== gamedata.actualPlayer.id)" data-ng-class="{midnightblue:gamedata.roundRunning}">{{gamedata.actualPlayer.name}}'s Begriff</h3>
-                            </div>
-                            <div class="col-3">                                
-                                <h3 class="pull-right midnightblue" data-ng-class="{'red':countdownSeconds < 10}">{{countdownSeconds| number:0}}</i></h3>
-                            </div>
-                        </div>
-                    </div>
+                <div class="card" data-ng-show="inGameRoundRunning()">                    
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-8">
-                                <div  class="col-6">
-                                    <canvas style="background-color: white  " style="border: 1px solid;"id="sketchpad" height="500px" width="500px">
-                                    </canvas>                
-                                </div>
+                            <div id="canvasContainer" class="col-12">
+                                <canvas id="sketchpad">
+                                </canvas>                
                             </div>
-                            <div class="col-4">
-                                <div data-ng-show="iamAcutalPlayer()" class="card">
-                                    <div class="card-header">
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <h3>Einstellungen</h3>
-                                            </div>                               
-                                        </div>
-                                    </div>
+                        </div><div class="row">
+                            <div class="col-12">
+                                <!--<div data-ng-show="iamAcutalPlayer()" class="card">-->
+                                <div class="card">
                                     <div class="card-body">
                                         <div class="row">
-                                            <div class="col-12">
-                                                <h5>Farben</h5>
-                                                <button type="button" class="btn btn-outline-danger" data-ng-click="setColor(255, 0, 0)">Rot</button>
-                                                <button type="button" class="btn btn-outline-primary" data-ng-click="setColor(0, 0, 255)">Blau</button>
-                                                <button type="button" class="btn btn-outline-warning" data-ng-click="setColor(255, 255, 0)">Gelb</button>
-                                                <button type="button" class="btn btn-outline-success" data-ng-click="setColor(0, 255, 0)">Grün</button>
-                                                <button type="button" class="btn btn-outline-dark" data-ng-click="setColor(0, 0, 0)">Schwarz</button>
-                                                <button type="button" class="btn btn-light" data-ng-click="setColor(255, 255, 255)">Radiergummi</button>
-                                            </div>                               
+                                                <div class="col-12">
+                                                    <button type="button" class="btn btn-warning" data-ng-click="clear()"><i class="fa fa-eraser" aria-hidden="true"></i></button>
+                                                    <button type="button" class="btn btn-success" data-ng-click="nextcard()"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+                                                    |
+                                                    <button type="button" class="btn btn-danger" data-ng-click="setColor(255, 0, 0)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                                    <button type="button" class="btn btn-primary" data-ng-click="setColor(0, 0, 255)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                                    <button type="button" class="btn btn-warning" data-ng-click="setColor(255, 255, 0)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                                    <button type="button" class="btn btn-success" data-ng-click="setColor(0, 255, 0)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                                    <button type="button" class="btn btn-dark" data-ng-click="setColor(0, 0, 0)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                                    <button type="button" class="btn btn-light" data-ng-click="setColor(255, 255, 255)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                                    <b data-ng-show="(meMaster || playerdata.id === gamedata.actualPlayer.id)">{{gamedata.acutalCard.term}}</b>
+                                                </div>                               
                                         </div>
-                                        <hr/>
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <h5>Line</h5>
-                                                <button type="button" class="btn btn-outline-dark" data-ng-click="setSize(4)">Schmal</button>
-                                                <button type="button" class="btn btn-outline-dark" data-ng-click="setSize(8)">Mittel</button>
-                                                <button type="button" class="btn btn-outline-dark" data-ng-click="setSize(12)"><b>Dick</b></button>
-                                                <button type="button" class="btn btn-outline-dark" data-ng-click="setSize(34)">Fett</button>
-                                            </div>                               
-                                        </div>
-                                        <hr/>
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <h5>Funktion</h5>
-                                                <button type="button" class="btn btn-warning" data-ng-click="clear()">Bild löschen</button>
-                                                <button type="button" class="btn btn-success" data-ng-click="nextcard()">Nächste Karte</button>
-                                            </div>                               
-                                        </div>
-                                        <hr/>                        
                                     </div>
                                 </div>                              
                             </div>
@@ -163,6 +129,17 @@
                                     <li data-ng-show="playerdata.id === gamedata.actualPlayer.id" class="list-group-item"></li>
                                     <li data-ng-show="meMaster" class="list-group-item"><button type="button" class="btn btn-danger btn-lg btn-block" data-ng-click="intervene()">Intervenieren</button></li>
                                 </ul>                   
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="row">
+                            <div class="col-9">
+                                <h3 data-ng-show="(meMaster || playerdata.id === gamedata.actualPlayer.id)" data-ng-class="{midnightblue:gamedata.roundRunning}">{{gamedata.acutalCard.term}}</h3>
+                                <h3 data-ng-show="(!meMaster && playerdata.id !== gamedata.actualPlayer.id)" data-ng-class="{midnightblue:gamedata.roundRunning}">{{gamedata.actualPlayer.name}}'s Begriff</h3>
+                            </div>
+                            <div class="col-3">                                
+                                <h3 class="pull-right midnightblue" data-ng-class="{'red':countdownSeconds < 10}">{{countdownSeconds| number:0}}</i></h3>
                             </div>
                         </div>
                     </div>

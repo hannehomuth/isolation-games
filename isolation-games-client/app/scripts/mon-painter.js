@@ -26,6 +26,20 @@ angular.module('myApp.painter', ['ngRoute'])
                 $scope.size = 4;
                 $scope.lastPicture = "";
                 $scope.picChangedAfterLastPush = false;
+                // Variables for referencing the canvas and 2dcanvas context
+                // Variables for referencing the canvas and 2dcanvas context
+                var canvas, ctx;
+
+                console.log("ww", window.innerWidth)
+                if (window.innerWidth < 479) {
+                    $scope.canvasWidth = 350;
+                    $scope.canvasHeigth = 350;
+                } else {
+                    $scope.canvasWidth = 500;
+                    $scope.canvasHeigth = 500;
+                }
+                ;
+
 
                 $scope.createNewGame = function () {
                     $http({
@@ -76,6 +90,7 @@ angular.module('myApp.painter', ['ngRoute'])
                             calculateCountDown();
 //                            if ($scope.gamedata.roundRunning === false) {
 //                            }
+                            resize(canvas);
                         }, function errorCallback(response) {
                             $scope.errorData = response.data;
                         });
@@ -97,7 +112,7 @@ angular.module('myApp.painter', ['ngRoute'])
                         });
                     }
                 };
-                
+
                 $scope.playerWantsToPlay = function (player) {
                     if ($scope.gameid) {
                         $http({
@@ -405,7 +420,7 @@ angular.module('myApp.painter', ['ngRoute'])
                             method: 'PUT',
                             headers: {'Content-Type': 'application/json'},
                             data: {imageData: ""},
-                            url: UrlInjector.getBaseURL() + '/api/painter/'+$scope.gameid+"/clear"
+                            url: UrlInjector.getBaseURL() + '/api/painter/' + $scope.gameid + "/clear"
                         });
                     }
                 };
@@ -435,7 +450,7 @@ angular.module('myApp.painter', ['ngRoute'])
                             if (im.action === "STOP_COUNTDOWN") {
                                 $scope.cancelCountDowns();
                             }
-                            
+
                             if (im.action === "NEXT_ROUND") {
                                 clearCanvas(canvas, ctx);
                                 $scope.getGame();
@@ -477,10 +492,10 @@ angular.module('myApp.painter', ['ngRoute'])
 
                 $scope.iamAcutalPlayer = function () {
                     var iamAp = false;
-                    if($scope.gamedata &&  $scope.gamedata.actualPlayer){
-                        iamAp = $rootScope.playerdata.id === $scope.gamedata.actualPlayer.id;                        
+                    if ($scope.gamedata && $scope.gamedata.actualPlayer) {
+                        iamAp = $rootScope.playerdata.id === $scope.gamedata.actualPlayer.id;
                     }
-                    console.log("Iam actual player ",iamAp);
+                    console.log("Iam actual player ", iamAp);
                     return iamAp;
                 };
 
@@ -540,7 +555,7 @@ angular.module('myApp.painter', ['ngRoute'])
                 var setImageOnCanvas = function (imagedata) {
                     var destinationImage = new Image;
                     destinationImage.onload = function () {
-                        ctx.drawImage(destinationImage, 0, 0);
+                        ctx.drawImage(destinationImage, 0, 0, canvas.clientWidth, canvas.clientHeight);
                     };
                     destinationImage.src = imagedata;
                 }
@@ -552,14 +567,12 @@ angular.module('myApp.painter', ['ngRoute'])
                         method: 'PUT',
                         headers: {'Content-Type': 'application/json'},
                         data: {imageData: $scope.lastPicture},
-                        url: UrlInjector.getBaseURL() + '/api/painter/'+$scope.gameid+'/draw'
+                        url: UrlInjector.getBaseURL() + '/api/painter/' + $scope.gameid + '/draw'
                     })
 
                 };
 
-                // Variables for referencing the canvas and 2dcanvas context
-                // Variables for referencing the canvas and 2dcanvas context
-                var canvas, ctx;
+
 
                 // Variables to keep track of the mouse position and left-button status 
                 var mouseX, mouseY, mouseDown = 0;
@@ -711,6 +724,23 @@ angular.module('myApp.painter', ['ngRoute'])
                 }
 
 
+                function resize(can) {  
+                    //Remember the old picture before resize
+//                    var tmpPic = canvas.toDataURL("image/png");
+                    // Lookup the size the browser is displaying the canvas.
+                   
+                    var displayWidth =  Math.round(document.getElementById("canvasContainer").offsetWidth*0.9);
+                    var displayHeight =  Math.round(displayWidth*0.5);
+                    if (can.width !== displayWidth ||
+                            can.height !== displayHeight) {
+
+                        // Make the canvas the same size
+                        can.width = displayWidth;
+                        can.height = displayHeight;
+//                        setImageOnCanvas(tmpPic);
+                    }
+
+                }
                 // Set-up the canvas and add our event handlers after the page has loaded
                 function init() {
                     // Get the specific canvas element from the HTML document
@@ -732,10 +762,16 @@ angular.module('myApp.painter', ['ngRoute'])
                         canvas.addEventListener('touchend', sketchpad_touchEnd, false);
                         canvas.addEventListener('touchmove', sketchpad_touchMove, false);
                     }
+                    $(window).on("resize", function () {
+                        resize(canvas);
+                    });
+                    resize(canvas);
                 }
+
                 init();
 
-                $interval($scope.upload, 500);
+                $interval($scope.upload, 250);
+                $interval(resize, 250, 0, true, canvas);
 
 
             }]);
