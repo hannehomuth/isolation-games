@@ -436,10 +436,15 @@ angular.module('myApp.painter', ['ngRoute'])
                                 $scope.cancelCountDowns();
                             }
                             
-                            if (im.action === "PULL_AND_CLEAR") {
-                                console.log("PULL_AND_CLEAR");
+                            if (im.action === "NEXT_ROUND") {
                                 clearCanvas(canvas, ctx);
-                                 $scope.getGame();
+                                $scope.getGame();
+                            }
+                            if (im.action === "NEXT_CARD") {
+                                $scope.lastTerm = im.lastTerm;
+                                showNextCardModal()
+                                clearCanvas(canvas, ctx);
+                                $scope.getGame();
                             }
                             if (im.action === "CLEAR") {
                                 console.log("CLEAR");
@@ -452,7 +457,7 @@ angular.module('myApp.painter', ['ngRoute'])
                         }
 
                         if (event.data === "INTERVENE") {
-                            showInterveneModal();
+                            showNextCardModal();
                             if ($scope.meMaster || ($rootScope.playerdata.id === $scope.gamedata.actualPlayer.id)) {
                                 $scope.getGame();
                             }
@@ -483,15 +488,15 @@ angular.module('myApp.painter', ['ngRoute'])
                     $('#createGameModal').modal('show');
                 };
 
-                var showInterveneModal = function () {
-                    $('#interveneModal').modal('show');
-                    var audio = new Audio('../images/smssqueeze_idiszvnp.mp3');
-                    audio.play();
-                    $timeout(hideInterveneModal, 1500);
+                var showNextCardModal = function () {
+                    $('#nextCardModal').modal('show');
+//                    var audio = new Audio('../images/smssqueeze_idiszvnp.mp3');
+//                    audio.play();
+                    $timeout(hideNextCardModal, 1500);
                 };
 
-                var hideInterveneModal = function () {
-                    $('#interveneModal').modal('hide');
+                var hideNextCardModal = function () {
+                    $('#nextCardModal').modal('hide');
                 };
 
 

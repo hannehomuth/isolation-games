@@ -1,7 +1,7 @@
 package de.homuth.games.server.resources;
 
 import de.homuth.games.server.model.Player;
-import de.homuth.games.server.model.painter.CanvasImage;
+import de.homuth.games.server.model.painter.MondayPainterInfo;
 import de.homuth.games.server.model.painter.CanvasEncoder;
 import de.homuth.games.server.model.painter.MondayPainter;
 import de.homuth.games.server.services.StorageService;
@@ -54,7 +54,7 @@ public class PainterResource {
 
     @PUT
     @Path("{gameid}/draw")
-    public Response draw(CanvasImage canvasImage) {
+    public Response draw(MondayPainterInfo canvasImage) {
         
         try {
             canvasImage.setAction("DRAW");
@@ -68,7 +68,7 @@ public class PainterResource {
     @PUT
     @Path("{gameid}/clear")
     public Response clear() {
-        CanvasImage canvasImage = new CanvasImage();
+        MondayPainterInfo canvasImage = new MondayPainterInfo();
         canvasImage.setAction("CLEAR");
         try {
             broadcast(canvasImage);
@@ -117,7 +117,7 @@ public class PainterResource {
             storedGame.addOrReplacePlayer(player);
             LOGGER.info("Player added");
             storageService.storePainter(storedGame);
-            CanvasImage c = new CanvasImage();
+            MondayPainterInfo c = new MondayPainterInfo();
             c.setAction("PULL");
             broadcast(c);
             return Response.ok(storedGame).build();
@@ -137,7 +137,7 @@ public class PainterResource {
             }
             storedGame.removePlayer(playerId);
             storageService.storePainter(storedGame);
-            CanvasImage c = new CanvasImage();
+            MondayPainterInfo c = new MondayPainterInfo();
             c.setAction("PULL");
             broadcast(c);
             LOGGER.info("Player removed");
@@ -158,7 +158,7 @@ public class PainterResource {
             }
             storedGame.makePlayerToMaster(playerId);
             storageService.storePainter(storedGame);
-            CanvasImage c = new CanvasImage();
+            MondayPainterInfo c = new MondayPainterInfo();
             c.setAction("PULL");
             broadcast(c);
             LOGGER.info("Player made to master");
@@ -179,7 +179,7 @@ public class PainterResource {
             }
             storedGame.markPlayerForPlay(playerId,Boolean.TRUE);
             storageService.storePainter(storedGame);
-            CanvasImage c = new CanvasImage();
+            MondayPainterInfo c = new MondayPainterInfo();
             c.setAction("PULL");
             broadcast(c);
             LOGGER.info("Player made to master");
@@ -199,7 +199,7 @@ public class PainterResource {
             }
             storedGame.markPlayerForPlay(playerId,Boolean.FALSE);
             storageService.storePainter(storedGame);
-            CanvasImage c = new CanvasImage();
+            MondayPainterInfo c = new MondayPainterInfo();
             c.setAction("PULL");
             broadcast(c);
             LOGGER.info("Player made to master");
@@ -220,7 +220,7 @@ public class PainterResource {
             }
             storedGame.addOrRemovePointForPlayer(playerId, 1);
             storageService.storePainter(storedGame);
-            CanvasImage c = new CanvasImage();
+            MondayPainterInfo c = new MondayPainterInfo();
             c.setAction("PULL");
             broadcast(c);
             LOGGER.info("added point for player " + playerId);
@@ -241,7 +241,7 @@ public class PainterResource {
             }
             storedGame.addOrRemovePointForPlayer(playerId, -1);
            storageService.storePainter(storedGame);
-            CanvasImage c = new CanvasImage();
+            MondayPainterInfo c = new MondayPainterInfo();
             c.setAction("PULL");
             broadcast(c);
             LOGGER.info("removed point for player " + playerId);
@@ -262,7 +262,7 @@ public class PainterResource {
             }
             storedGame.addOrRemoveCountDown(5);
             storageService.storePainter(storedGame);
-            CanvasImage c = new CanvasImage();
+            MondayPainterInfo c = new MondayPainterInfo();
             c.setAction("PULL");
             broadcast(c);
             return Response.ok(storedGame).build();
@@ -282,7 +282,7 @@ public class PainterResource {
             }
             storedGame.addOrRemoveCountDown(-5);
             storageService.storePainter(storedGame);
-            CanvasImage c = new CanvasImage();
+            MondayPainterInfo c = new MondayPainterInfo();
             c.setAction("PULL");
             broadcast(c);
             return Response.ok(storedGame).build();
@@ -299,7 +299,7 @@ public class PainterResource {
             MondayPainter storedGame = storageService.getMondayPainter(gameId);
             storedGame.stopRound();
             storageService.storePainter(storedGame);
-            CanvasImage c = new CanvasImage();
+            MondayPainterInfo c = new MondayPainterInfo();
             c.setAction("PULL");
             broadcast(c);
             LOGGER.info("Stopped round");
@@ -320,8 +320,8 @@ public class PainterResource {
             }
             storedGame.nextRound();
             storageService.storePainter(storedGame);
-            CanvasImage c = new CanvasImage();            
-            c.setAction("PULL_AND_CLEAR");
+            MondayPainterInfo c = new MondayPainterInfo();            
+            c.setAction("NEXT_ROUND");
             broadcast(c);
             LOGGER.info("Next round");
             return Response.ok(storedGame).build();
@@ -335,11 +335,12 @@ public class PainterResource {
     @Path("{gameid}/nextcard")
     public Response nextCard(@PathParam("gameid") String gameId) {
         try {
+            MondayPainterInfo c = new MondayPainterInfo();
             MondayPainter storedGame = storageService.getMondayPainter(gameId);
+            c.setLastTerm(storedGame.getAcutalCard().getTerm());
             storedGame.nextCard();
             storageService.storePainter(storedGame);
-            CanvasImage c = new CanvasImage();
-            c.setAction("PULL_AND_CLEAR");
+            c.setAction("NEXT_CARD");
             broadcast(c);
             LOGGER.info("Next card");
             return Response.ok(storedGame).build();
@@ -356,7 +357,7 @@ public class PainterResource {
             MondayPainter storedGame = storageService.getMondayPainter(gameId);
             storedGame.nextCard();
             storageService.storePainter(storedGame);
-            CanvasImage c = new CanvasImage();
+            MondayPainterInfo c = new MondayPainterInfo();
             c.setAction("INTERVENE");
             broadcast(c);
             LOGGER.info("Intervene");
@@ -408,7 +409,7 @@ public class PainterResource {
 
     }
 
-    private static void broadcast(CanvasImage message) throws IOException {
+    private static void broadcast(MondayPainterInfo message) throws IOException {
 
         painterEndpoints.forEach(endpoint -> {
             synchronized (endpoint) {

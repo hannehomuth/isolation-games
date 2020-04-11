@@ -5,7 +5,6 @@
  */
 package de.homuth.games.server.model.painter;
 
-import java.util.Base64;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.websocket.EncodeException;
@@ -16,14 +15,15 @@ import javax.websocket.EndpointConfig;
  *
  * @author jhomuth
  */
-public class CanvasEncoder implements Encoder.Text<CanvasImage> {
+public class CanvasEncoder implements Encoder.Text<MondayPainterInfo> {
 
   @Override
-  public String encode(CanvasImage line) throws EncodeException {
+  public String encode(MondayPainterInfo line) throws EncodeException {
 
       JsonObject jsonObject = Json.createObjectBuilder()
         .add("imageData", line.getImageData())
-        .add("action", line.getAction()).build();
+        .add("action", line.getAction())
+        .add("lastTerm", line.getLastTerm()).build();
     return jsonObject.toString();
 
   }

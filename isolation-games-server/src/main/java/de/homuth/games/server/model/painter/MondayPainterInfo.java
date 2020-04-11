@@ -9,11 +9,31 @@ package de.homuth.games.server.model.painter;
  *
  * @author jhomuth
  */
-public class CanvasImage {
+public class MondayPainterInfo {
 
     private String imageData = "";
 
-    private String action ="";
+    private String action = "";
+    
+    private String lastTerm = "";
+
+    /**
+     * Get the value of lastTerm
+     *
+     * @return the value of lastTerm
+     */
+    public String getLastTerm() {
+        return lastTerm;
+    }
+
+    /**
+     * Set the value of lastTerm
+     *
+     * @param lastTerm new value of lastTerm
+     */
+    public void setLastTerm(String lastTerm) {
+        this.lastTerm = lastTerm;
+    }
 
     /**
      * Get the value of action
