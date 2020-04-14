@@ -26,11 +26,11 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 class="modal-title" style="margin: 0 auto;"  id="exampleModalLabel">{{playerdata.id === gamedata.actualPlayer.id ? ("Nächste Karte " + gamedata.acutalCard.term ): "Begriff " + lastTerm+ " übersprungen"}}</h2>
+                    <h2 class="modal-title" style="margin: 0 auto;"  id="exampleModalLabel">{{playerdata.id === gamedata.actualPlayer.id ? ("Nächste Karte " + gamedata.acutalCard.term): "Begriff " + lastTerm + " übersprungen"}}</h2>
                 </div>
-    <!--                <div class="modal-body">
-                        <p>Vorheriger Begriff: {{lastTerm}}</p>
-                    </div>-->
+                <!--                <div class="modal-body">
+                                    <p>Vorheriger Begriff: {{lastTerm}}</p>
+                                </div>-->
             </div>
         </div>
     </div>
@@ -93,37 +93,77 @@
     <div data-ng-show="gamedata.id" class="container-fluid">
         <div class="row">           
             <div class="col-12">
-                <div class="card" data-ng-show="inGameRoundRunning()">                    
+                <div class="card">                    
                     <div class="card-body">
-                        <div class="row">
+                        <div class="row" data-ng-show="!inGameRoundRunning()">
+                            <div class="col-9"><h3>Runde beendet</h3></div>
+                            <div class="col-3">
+                                <h3 class="pull-right"><i class="fa fa-flag-checkered" aria-hidden="true"></i></h3>                            
+                            </div>
+                        </div>
+                        <div class="row" data-ng-show="!meMaster && inGameRoundRunning()">
                             <div id="canvasContainer" class="col-12">
                                 <canvas id="sketchpad">
                                 </canvas>                
                             </div>
-                        </div><div class="row">
+                        </div>
+                        <div class="row">
                             <div class="col-12">
-                                <!--<div data-ng-show="iamAcutalPlayer()" class="card">-->
-                                <div class="card">
+                                <div data-ng-show="iamAcutalPlayer() && inGameRoundRunning()" class="card">
                                     <div class="card-body">
                                         <div class="row">
-                                                <div class="col-12">
-                                                    <button type="button" class="btn btn-warning" data-ng-click="clear()"><i class="fa fa-eraser" aria-hidden="true"></i></button>
-                                                    <button type="button" class="btn btn-success" data-ng-click="nextcard()"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>
-                                                    |
-                                                    <button type="button" class="btn btn-danger" data-ng-click="setColor(255, 0, 0)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
-                                                    <button type="button" class="btn btn-primary" data-ng-click="setColor(0, 0, 255)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
-                                                    <button type="button" class="btn btn-warning" data-ng-click="setColor(255, 255, 0)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
-                                                    <button type="button" class="btn btn-success" data-ng-click="setColor(0, 255, 0)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
-                                                    <button type="button" class="btn btn-dark" data-ng-click="setColor(0, 0, 0)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
-                                                    <button type="button" class="btn btn-light" data-ng-click="setColor(255, 255, 255)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
-                                                    <b data-ng-show="(meMaster || playerdata.id === gamedata.actualPlayer.id)">{{gamedata.acutalCard.term}}</b>
-                                                </div>                               
+                                            <div class="col-12">
+                                                <button type="button" class="btn btn-warning" data-ng-click="clear()"><i class="fa fa-eraser" aria-hidden="true"></i></button>
+                                                <button type="button" class="btn btn-success" data-ng-click="nextcard()"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+                                                |
+                                                <button type="button" class="btn btn-danger" data-ng-click="setColor(255, 0, 0)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                                <button type="button" class="btn btn-primary" data-ng-click="setColor(0, 0, 255)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                                <button type="button" class="btn btn-warning" data-ng-click="setColor(255, 255, 0)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                                <button type="button" class="btn btn-success" data-ng-click="setColor(0, 255, 0)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                                <button type="button" class="btn btn-dark" data-ng-click="setColor(0, 0, 0)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                                <button type="button" class="btn btn-light" data-ng-click="setColor(255, 255, 255)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                                <b data-ng-show="(meMaster || playerdata.id === gamedata.actualPlayer.id)">{{gamedata.acutalCard.term}}</b>
+                                            </div>                               
                                         </div>
                                     </div>
                                 </div>                              
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row" data-ng-show="meMaster">
+                            <div id="canvasContainerMaster" class="col-6">
+                                <canvas id="sketchpadMaster">
+                                </canvas>                
+                            </div>
+                            <div class="col-6">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Name</th>
+                                            <th scope="col">Punkte</th>
+                                            <th data-ng-show="meMaster">Aktionen</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr data-ng-repeat="player in gamedata.players">
+                                            <td scope="row" data-ng-class="{boldgreen:player.id === gamedata.actualPlayer.id}">{{player.name}}</td>
+                                            <td>{{player.points}}</td>
+                                            <td  data-ng-show="meMaster">
+                                                <div class="btn-group pull-right">
+                                                    <a class="btn btn-warning" data-toggle="tooltip" data-placement="top" title="Punkt geben" data-ng-click="addPointToPlayer(player)">
+                                                        <i class="fa fa-hand-o-up" aria-hidden="true"></i>
+                                                    </a>                                                                                                                                                                      
+                                                    <a class="btn btn-warning" data-toggle="tooltip" data-placement="top" title="Punkt abziehen" data-ng-click="removePointFromPlayer(player)">
+                                                        <i class="fa fa-hand-o-down" aria-hidden="true"></i>
+                                                    </a>                                                    
+                                                </div>
+                                            </td>
+                                        </tr>                                        
+                                    </tbody>
+                                </table>                
+                            </div>
+                        </div>
+                        
+                        <div class="row" data-ng-show="inGameRoundRunning()">
                             <div class="col-12">
                                 <ul class="list-group list-group-flush">
                                     <li data-ng-show="playerdata.id === gamedata.actualPlayer.id" class="list-group-item"></li>
@@ -132,7 +172,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card-footer">
+                    <div class="card-footer" data-ng-show="inGameRoundRunning()">
                         <div class="row">
                             <div class="col-9">
                                 <h3 data-ng-show="(meMaster || playerdata.id === gamedata.actualPlayer.id)" data-ng-class="{midnightblue:gamedata.roundRunning}">{{gamedata.acutalCard.term}}</h3>
@@ -144,16 +184,7 @@
                         </div>
                     </div>
                 </div>                
-                <div class="card" data-ng-show="!gamedata.roundRunning">
-                    <div class="card-header">
-                        <div class="row">
-                            <div class="col-9"><h3>Runde beendet</h3></div>
-                            <div class="col-3">
-                                <h3 class="pull-right"><i class="fa fa-flag-checkered" aria-hidden="true"></i></h3>                            
-                            </div>
-                        </div>
-                    </div>                    
-                </div>                
+                           
             </div>            
         </div>
         <div data-ng-show="meMaster">

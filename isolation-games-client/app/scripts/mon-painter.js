@@ -26,6 +26,7 @@ angular.module('myApp.painter', ['ngRoute'])
                 $scope.size = 4;
                 $scope.lastPicture = "";
                 $scope.picChangedAfterLastPush = false;
+                var sketchPadName = "#sketchpad";
                 // Variables for referencing the canvas and 2dcanvas context
                 // Variables for referencing the canvas and 2dcanvas context
                 var canvas, ctx;
@@ -90,6 +91,7 @@ angular.module('myApp.painter', ['ngRoute'])
                             calculateCountDown();
 //                            if ($scope.gamedata.roundRunning === false) {
 //                            }
+                            init();
                             resize(canvas);
                         }, function errorCallback(response) {
                             $scope.errorData = response.data;
@@ -320,6 +322,7 @@ angular.module('myApp.painter', ['ngRoute'])
                         $interval.cancel($scope.nextRoundCountDownPromise);
                         $scope.nextRoundCountDownRunningIndicator = false;
                         closeCountDownModal();
+                        resize(canvas);
                         return;
                     }
                     $scope.countdownMessage = $scope.nextRoundCountDownSeconds / 1000;
@@ -495,7 +498,6 @@ angular.module('myApp.painter', ['ngRoute'])
                     if ($scope.gamedata && $scope.gamedata.actualPlayer) {
                         iamAp = $rootScope.playerdata.id === $scope.gamedata.actualPlayer.id;
                     }
-                    console.log("Iam actual player ", iamAp);
                     return iamAp;
                 };
 
@@ -524,6 +526,13 @@ angular.module('myApp.painter', ['ngRoute'])
                                 $scope.meMaster = true;
                             }
                         })
+                    }
+                    if($scope.meMaster){
+                        sketchPadName = "#sketchpadMaster";
+                        init();
+                    }else{
+                        sketchPadName = "#sketchpad";                        
+                        init();
                     }
                 };
 
@@ -557,7 +566,7 @@ angular.module('myApp.painter', ['ngRoute'])
                     destinationImage.onload = function () {
                         ctx.drawImage(destinationImage, 0, 0, canvas.clientWidth, canvas.clientHeight);
                     };
-                    destinationImage.src = imagedata;
+                    destinationImage.src = imagedata;                    
                 }
 
 
@@ -711,7 +720,7 @@ angular.module('myApp.painter', ['ngRoute'])
                     if (!e)
                         var e = event;
 
-                    var parentOffset = $('#sketchpad').offset();
+                    var parentOffset = $(sketchPadName).offset();
                     if (e.touches) {
                         if (e.touches.length == 1) { // Only deal with one finger
                             var touch = e.touches[0]; // Get the information for finger #1
@@ -729,7 +738,7 @@ angular.module('myApp.painter', ['ngRoute'])
 //                    var tmpPic = canvas.toDataURL("image/png");
                     // Lookup the size the browser is displaying the canvas.
                    
-                    var displayWidth =  Math.round(document.getElementById("canvasContainer").offsetWidth*0.9);
+                    var displayWidth =  $scope.meMaster ? Math.round(document.getElementById("canvasContainerMaster").offsetWidth*0.9) : Math.round(document.getElementById("canvasContainer").offsetWidth*0.9);
                     var displayHeight =  Math.round(displayWidth*0.5);
                     if (can.width !== displayWidth ||
                             can.height !== displayHeight) {
@@ -744,7 +753,12 @@ angular.module('myApp.painter', ['ngRoute'])
                 // Set-up the canvas and add our event handlers after the page has loaded
                 function init() {
                     // Get the specific canvas element from the HTML document
-                    canvas = document.getElementById('sketchpad');
+                    if(!$scope.meMaster){
+                        canvas = document.getElementById('sketchpad');
+                    }else{
+                        canvas = document.getElementById('sketchpadMaster');                        
+                        
+                    }
 
                     // If the browser supports the canvas tag, get the 2d drawing context for this canvas
                     if (canvas.getContext)
@@ -772,6 +786,5 @@ angular.module('myApp.painter', ['ngRoute'])
 
                 $interval($scope.upload, 250);
                 $interval(resize, 250, 0, true, canvas);
-
 
             }]);

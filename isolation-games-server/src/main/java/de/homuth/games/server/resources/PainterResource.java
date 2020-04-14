@@ -215,9 +215,6 @@ public class PainterResource {
     public Response addPoint(@PathParam("gameid") String gameId, @PathParam("playerid") String playerId) {
         try {
             MondayPainter storedGame = storageService.getMondayPainter(gameId);
-            if (storedGame.isRoundRunning()) {
-                return Response.status(Response.Status.CONFLICT).build();
-            }
             storedGame.addOrRemovePointForPlayer(playerId, 1);
             storageService.storePainter(storedGame);
             MondayPainterInfo c = new MondayPainterInfo();
@@ -236,11 +233,8 @@ public class PainterResource {
     public Response removePoint(@PathParam("gameid") String gameId, @PathParam("playerid") String playerId) {
         try {
             MondayPainter storedGame = storageService.getMondayPainter(gameId);
-            if (storedGame.isRoundRunning()) {
-                return Response.status(Response.Status.CONFLICT).build();
-            }
             storedGame.addOrRemovePointForPlayer(playerId, -1);
-           storageService.storePainter(storedGame);
+            storageService.storePainter(storedGame);
             MondayPainterInfo c = new MondayPainterInfo();
             c.setAction("PULL");
             broadcast(c);
