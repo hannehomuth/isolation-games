@@ -5,6 +5,7 @@ import de.homuth.games.server.model.painter.MondayPainterInfo;
 import de.homuth.games.server.model.painter.CanvasEncoder;
 import de.homuth.games.server.model.painter.MondayPainter;
 import de.homuth.games.server.services.StorageService;
+import de.homuth.games.server.services.util.AccessMode;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Collections;
@@ -95,10 +96,10 @@ public class PainterResource {
     public Response get(@PathParam("gameid") String gameId) {
         Calendar requestStart = Calendar.getInstance();
         try {
-            MondayPainter storedGame = storageService.getMondayPainter(gameId);
+            MondayPainter storedGame = storageService.getMondayPainter(gameId,AccessMode.READ_ONLY);
             storedGame.setCards(Collections.EMPTY_LIST);
             Calendar requestEnd = Calendar.getInstance();
-            LOGGER.info("Read game within " + (requestEnd.getTimeInMillis() - requestStart.getTimeInMillis()) + " milliseconds");
+            LOGGER.debug("Read game within " + (requestEnd.getTimeInMillis() - requestStart.getTimeInMillis()) + " milliseconds");
             return Response.ok(storedGame).build();
         } catch (IOException ex) {
             LOGGER.error("...", ex);
@@ -110,12 +111,11 @@ public class PainterResource {
     @Path("{gameid}")
     public Response addPlayer(@PathParam("gameid") String gameId, Player player) {
         try {
-            MondayPainter storedGame = storageService.getMondayPainter(gameId);
+            MondayPainter storedGame = storageService.getMondayPainter(gameId,AccessMode.WRITE);
             if (storedGame.isRoundRunning()) {
                 return Response.status(Response.Status.CONFLICT).build();
             }
             storedGame.addOrReplacePlayer(player);
-            LOGGER.info("Player added");
             storageService.storePainter(storedGame);
             MondayPainterInfo c = new MondayPainterInfo();
             c.setAction("PULL");
@@ -131,7 +131,7 @@ public class PainterResource {
     @Path("{gameid}/{playerid}")
     public Response removePlayer(@PathParam("gameid") String gameId, @PathParam("playerid") String playerId) {
         try {
-            MondayPainter storedGame = storageService.getMondayPainter(gameId);
+            MondayPainter storedGame = storageService.getMondayPainter(gameId,AccessMode.WRITE);
             if (storedGame.isRoundRunning()) {
                 return Response.status(Response.Status.CONFLICT).build();
             }
@@ -140,7 +140,6 @@ public class PainterResource {
             MondayPainterInfo c = new MondayPainterInfo();
             c.setAction("PULL");
             broadcast(c);
-            LOGGER.info("Player removed");
             return Response.ok(storedGame).build();
         } catch (IOException ex) {
             LOGGER.error("...", ex);
@@ -152,7 +151,7 @@ public class PainterResource {
     @Path("{gameid}/master/{playerid}")
     public Response makePlayerToMaster(@PathParam("gameid") String gameId, @PathParam("playerid") String playerId) {
         try {
-            MondayPainter storedGame = storageService.getMondayPainter(gameId);
+            MondayPainter storedGame = storageService.getMondayPainter(gameId,AccessMode.WRITE);
             if (storedGame.isRoundRunning()) {
                 return Response.status(Response.Status.CONFLICT).build();
             }
@@ -161,7 +160,6 @@ public class PainterResource {
             MondayPainterInfo c = new MondayPainterInfo();
             c.setAction("PULL");
             broadcast(c);
-            LOGGER.info("Player made to master");
             return Response.ok(storedGame).build();
         } catch (IOException ex) {
             LOGGER.error("...", ex);
@@ -173,7 +171,7 @@ public class PainterResource {
     @Path("{gameid}/wants/{playerid}")
     public Response markPlayerForPlay(@PathParam("gameid") String gameId, @PathParam("playerid") String playerId) {
         try {
-            MondayPainter storedGame = storageService.getMondayPainter(gameId);
+            MondayPainter storedGame = storageService.getMondayPainter(gameId,AccessMode.WRITE);
             if (storedGame.isRoundRunning()) {
                 return Response.status(Response.Status.CONFLICT).build();
             }
@@ -182,7 +180,6 @@ public class PainterResource {
             MondayPainterInfo c = new MondayPainterInfo();
             c.setAction("PULL");
             broadcast(c);
-            LOGGER.info("Player made to master");
             return Response.ok(storedGame).build();
         } catch (IOException ex) {
             LOGGER.error("...", ex);
@@ -193,7 +190,7 @@ public class PainterResource {
     @Path("{gameid}/wantsnot/{playerid}")
     public Response markPlayerForDontPlay(@PathParam("gameid") String gameId, @PathParam("playerid") String playerId) {
         try {
-            MondayPainter storedGame = storageService.getMondayPainter(gameId);
+            MondayPainter storedGame = storageService.getMondayPainter(gameId,AccessMode.WRITE);
             if (storedGame.isRoundRunning()) {
                 return Response.status(Response.Status.CONFLICT).build();
             }
@@ -202,7 +199,6 @@ public class PainterResource {
             MondayPainterInfo c = new MondayPainterInfo();
             c.setAction("PULL");
             broadcast(c);
-            LOGGER.info("Player made to master");
             return Response.ok(storedGame).build();
         } catch (IOException ex) {
             LOGGER.error("...", ex);
@@ -214,13 +210,12 @@ public class PainterResource {
     @Path("{gameid}/points+/{playerid}")
     public Response addPoint(@PathParam("gameid") String gameId, @PathParam("playerid") String playerId) {
         try {
-            MondayPainter storedGame = storageService.getMondayPainter(gameId);
+            MondayPainter storedGame = storageService.getMondayPainter(gameId,AccessMode.WRITE);
             storedGame.addOrRemovePointForPlayer(playerId, 1);
             storageService.storePainter(storedGame);
             MondayPainterInfo c = new MondayPainterInfo();
             c.setAction("PULL");
             broadcast(c);
-            LOGGER.info("added point for player " + playerId);
             return Response.ok(storedGame).build();
         } catch (IOException ex) {
             LOGGER.error("...", ex);
@@ -232,13 +227,12 @@ public class PainterResource {
     @Path("{gameid}/points-/{playerid}")
     public Response removePoint(@PathParam("gameid") String gameId, @PathParam("playerid") String playerId) {
         try {
-            MondayPainter storedGame = storageService.getMondayPainter(gameId);
+            MondayPainter storedGame = storageService.getMondayPainter(gameId,AccessMode.WRITE);
             storedGame.addOrRemovePointForPlayer(playerId, -1);
             storageService.storePainter(storedGame);
             MondayPainterInfo c = new MondayPainterInfo();
             c.setAction("PULL");
             broadcast(c);
-            LOGGER.info("removed point for player " + playerId);
             return Response.ok(storedGame).build();
         } catch (IOException ex) {
             LOGGER.error("...", ex);
@@ -250,7 +244,7 @@ public class PainterResource {
     @Path("{gameid}/countdown+")
     public Response addCountDown(@PathParam("gameid") String gameId) {
         try {
-            MondayPainter storedGame = storageService.getMondayPainter(gameId);
+            MondayPainter storedGame = storageService.getMondayPainter(gameId,AccessMode.WRITE);
             if (storedGame.isRoundRunning()) {
                 return Response.status(Response.Status.CONFLICT).build();
             }
@@ -270,7 +264,7 @@ public class PainterResource {
     @Path("{gameid}/countdown-")
     public Response removeCountDown(@PathParam("gameid") String gameId) {
         try {
-            MondayPainter storedGame = storageService.getMondayPainter(gameId);
+            MondayPainter storedGame = storageService.getMondayPainter(gameId,AccessMode.WRITE);
             if (storedGame.isRoundRunning()) {
                 return Response.status(Response.Status.CONFLICT).build();
             }
@@ -290,13 +284,12 @@ public class PainterResource {
     @Path("{gameid}/stopround")
     public Response stopRound(@PathParam("gameid") String gameId) {
         try {
-            MondayPainter storedGame = storageService.getMondayPainter(gameId);
+            MondayPainter storedGame = storageService.getMondayPainter(gameId,AccessMode.WRITE);
             storedGame.stopRound();
             storageService.storePainter(storedGame);
             MondayPainterInfo c = new MondayPainterInfo();
             c.setAction("PULL");
             broadcast(c);
-            LOGGER.info("Stopped round");
             return Response.ok(storedGame).build();
         } catch (IOException ex) {
             LOGGER.error("...", ex);
@@ -308,7 +301,7 @@ public class PainterResource {
     @Path("{gameid}/nextround")
     public Response nextround(@PathParam("gameid") String gameId) {
         try {
-            MondayPainter storedGame = storageService.getMondayPainter(gameId);
+            MondayPainter storedGame = storageService.getMondayPainter(gameId,AccessMode.WRITE);
             if (storedGame.isRoundRunning()) {
                 return Response.status(Response.Status.CONFLICT).build();
             }
@@ -317,7 +310,6 @@ public class PainterResource {
             MondayPainterInfo c = new MondayPainterInfo();            
             c.setAction("NEXT_ROUND");
             broadcast(c);
-            LOGGER.info("Next round");
             return Response.ok(storedGame).build();
         } catch (IOException ex) {
             LOGGER.error("...", ex);
@@ -330,13 +322,12 @@ public class PainterResource {
     public Response nextCard(@PathParam("gameid") String gameId) {
         try {
             MondayPainterInfo c = new MondayPainterInfo();
-            MondayPainter storedGame = storageService.getMondayPainter(gameId);
+            MondayPainter storedGame = storageService.getMondayPainter(gameId,AccessMode.WRITE);
             c.setLastTerm(storedGame.getAcutalCard().getTerm());
             storedGame.nextCard();
             storageService.storePainter(storedGame);
             c.setAction("NEXT_CARD");
             broadcast(c);
-            LOGGER.info("Next card");
             return Response.ok(storedGame).build();
         } catch (IOException ex) {
             LOGGER.error("...", ex);
@@ -348,13 +339,12 @@ public class PainterResource {
     @Path("{gameid}/intervene")
     public Response intervene(@PathParam("gameid") String gameId) {
         try {
-            MondayPainter storedGame = storageService.getMondayPainter(gameId);
+            MondayPainter storedGame = storageService.getMondayPainter(gameId,AccessMode.WRITE);
             storedGame.nextCard();
             storageService.storePainter(storedGame);
             MondayPainterInfo c = new MondayPainterInfo();
             c.setAction("INTERVENE");
             broadcast(c);
-            LOGGER.info("Intervene");
             return Response.ok(storedGame).build();
         } catch (IOException ex) {
             LOGGER.error("...", ex);

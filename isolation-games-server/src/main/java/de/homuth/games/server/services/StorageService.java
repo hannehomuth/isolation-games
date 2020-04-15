@@ -8,6 +8,7 @@ import de.homuth.games.server.model.painter.MondayPainter;
 import de.homuth.games.server.model.tabu.Tabu;
 import de.homuth.games.server.model.tabu.TabuCard;
 import de.homuth.games.server.model.whoami.Whoami;
+import de.homuth.games.server.services.util.AccessMode;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,7 +21,9 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -41,8 +44,8 @@ public class StorageService {
     private static final String WHOAMI_STORAGE_FOLDER = "whoami";
     private static final String PAINTER_STORAGE_FOLDER = "painter";
     private static final String TMP_STORAGE_FOLDER = "temporary";
-
     private static final String PLAYER_STORAGE_FOLDER = "player";
+    public static Set<String> gameIdsActualInWriteAccess = new HashSet<>();
 
     /**
      * The path were to store the migrations
@@ -70,22 +73,23 @@ public class StorageService {
      * @return
      */
     private File getTabuGamesStorageFolder() {
-        File foodsourceStorageFolder = new File(getStorageFolder(), GAME_STORAGE_FOLDER+"/"+TABU_STORAGE_FOLDER);
+        File foodsourceStorageFolder = new File(getStorageFolder(), GAME_STORAGE_FOLDER + "/" + TABU_STORAGE_FOLDER);
         createFolderIfNotExist(foodsourceStorageFolder);
         return foodsourceStorageFolder;
     }
+
     private File getWhoamiGamesStorageFolder() {
-        File foodsourceStorageFolder = new File(getStorageFolder(), GAME_STORAGE_FOLDER+"/"+WHOAMI_STORAGE_FOLDER);
+        File foodsourceStorageFolder = new File(getStorageFolder(), GAME_STORAGE_FOLDER + "/" + WHOAMI_STORAGE_FOLDER);
         createFolderIfNotExist(foodsourceStorageFolder);
         return foodsourceStorageFolder;
     }
-    
+
     private File getPainterGamesStorageFolder() {
-        File painterStorageFolder = new File(getStorageFolder(), GAME_STORAGE_FOLDER+"/"+PAINTER_STORAGE_FOLDER);
+        File painterStorageFolder = new File(getStorageFolder(), GAME_STORAGE_FOLDER + "/" + PAINTER_STORAGE_FOLDER);
         createFolderIfNotExist(painterStorageFolder);
         return painterStorageFolder;
     }
-    
+
     private File getTmpStorageFolder() {
         File tmpstorageFolder = new File(getStorageFolder(), TMP_STORAGE_FOLDER);
         createFolderIfNotExist(tmpstorageFolder);
@@ -155,9 +159,10 @@ public class StorageService {
         Files.move(tmpTabu.toPath(), tabuFile.toPath(), StandardCopyOption.ATOMIC_MOVE);
         tmpTabu.deleteOnExit();
         Calendar end = Calendar.getInstance();
-        LOGGER.debug("Storing tabu game lasted "+(end.getTimeInMillis() - start.getTimeInMillis())+" millis");
+        LOGGER.debug("Storing tabu game lasted " + (end.getTimeInMillis() - start.getTimeInMillis()) + " millis");
         return tabu;
     }
+
     /**
      * Method will store the provided food source to filesystem. If the
      * foodsource already had an ID, the foodsource with the id will be located,
@@ -199,9 +204,11 @@ public class StorageService {
         Files.move(tmpPainter.toPath(), painterFIle.toPath(), StandardCopyOption.ATOMIC_MOVE);
         tmpPainter.deleteOnExit();
         Calendar end = Calendar.getInstance();
-        LOGGER.debug("Storing painter game lasted "+(end.getTimeInMillis() - start.getTimeInMillis())+" millis");
+        LOGGER.debug("Storing painter game lasted " + (end.getTimeInMillis() - start.getTimeInMillis()) + " millis");
+        gameIdsActualInWriteAccess.remove(painter.getId());
         return painter;
     }
+
     /**
      * Method will store the provided food source to filesystem. If the
      * foodsource already had an ID, the foodsource with the id will be located,
@@ -220,7 +227,7 @@ public class StorageService {
             whoami.setId(UUID.randomUUID().toString());
         }
 
-        File whoamiFile = new File(getWhoamiGamesStorageFolder(),whoami.getId() + ".json");
+        File whoamiFile = new File(getWhoamiGamesStorageFolder(), whoami.getId() + ".json");
         File tmpWhoami = File.createTempFile("whoami", ".tmp", getTmpStorageFolder());
         whoami.setLastModified(new Date());
         ObjectMapper mapper = new ObjectMapper();
@@ -269,7 +276,7 @@ public class StorageService {
                 returnValue = mapper.readValue(tabuFile, Tabu.class);
                 read = Boolean.TRUE;
             } catch (Exception e) {
-                LOGGER.warn("Error during read of file: "+e.getMessage());
+                LOGGER.warn("Error during read of file: " + e.getMessage());
                 try {
                     Thread.sleep(200);
                 } catch (InterruptedException ex) {
@@ -277,10 +284,9 @@ public class StorageService {
                 }
             }
         }
-        LOGGER.info("Read file after "+tries+" tries");
         return returnValue;
     }
-    
+
     /**
      * Method which will get the tabu game with the provided id
      *
@@ -288,11 +294,22 @@ public class StorageService {
      * @return
      * @throws IOException
      */
-    public MondayPainter getMondayPainter(String id) throws IOException {
+    public MondayPainter getMondayPainter(String id, AccessMode accessMode) throws IOException {
         if (id == null) {
             throw new IllegalArgumentException("The game id to collect must not be null");
         }
-
+        if(accessMode.WRITE.equals(accessMode)){
+            int tries = 0;
+            while(gameIdsActualInWriteAccess.contains(id) && tries < 200){
+                tries++;
+                try {
+                    LOGGER.warn("Game "+id+" actually in access");
+                    Thread.sleep(10);
+                } catch (InterruptedException ex) {
+                }
+            }
+            gameIdsActualInWriteAccess.add(id);
+        }
         File painterFile = new File(getPainterGamesStorageFolder(), id + ".json");
         ObjectMapper mapper = new ObjectMapper();
         int tries = 0;
@@ -304,7 +321,7 @@ public class StorageService {
                 returnValue = mapper.readValue(painterFile, MondayPainter.class);
                 read = Boolean.TRUE;
             } catch (Exception e) {
-                LOGGER.warn("Error during read of file: "+e.getMessage());
+                LOGGER.warn("Error during read of file: " + e.getMessage());
                 try {
                     Thread.sleep(200);
                 } catch (InterruptedException ex) {
@@ -312,10 +329,9 @@ public class StorageService {
                 }
             }
         }
-        LOGGER.info("Read file after "+tries+" tries");
         return returnValue;
     }
-    
+
     /**
      * Method which will get the tabu game with the provided id
      *
@@ -339,7 +355,7 @@ public class StorageService {
                 returnValue = mapper.readValue(whoamiFile, Whoami.class);
                 read = Boolean.TRUE;
             } catch (Exception e) {
-                LOGGER.warn("Error during read of file: "+e.getMessage());
+                LOGGER.warn("Error during read of file: " + e.getMessage());
                 try {
                     Thread.sleep(200);
                 } catch (InterruptedException ex) {
@@ -347,7 +363,6 @@ public class StorageService {
                 }
             }
         }
-        LOGGER.info("Read file after "+tries+" tries");
         return returnValue;
     }
 
@@ -359,7 +374,7 @@ public class StorageService {
         }
         return list;
     }
-    
+
     public List<Whoami> getAllWhoamiGames() throws IOException {
         File storageFolder = getWhoamiGamesStorageFolder();
         List<Whoami> list = new ArrayList<>();
@@ -368,12 +383,12 @@ public class StorageService {
         }
         return list;
     }
-    
+
     public List<MondayPainter> getAllPainterGames() throws IOException {
         File storageFolder = getPainterGamesStorageFolder();
         List<MondayPainter> list = new ArrayList<>();
         for (File f : storageFolder.listFiles(new JsonFileFilter())) {
-            list.add(getMondayPainter(f.getName().replace(".json", "")));
+            list.add(getMondayPainter(f.getName().replace(".json", ""),AccessMode.READ_ONLY));
         }
         return list;
     }
@@ -448,7 +463,7 @@ public class StorageService {
      */
     private static String getStringContentFrom(InputStream is) throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
-        try ( InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+        try (InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8)) {
             char[] buffer = new char[1024];
             stringBuilder = new StringBuilder();
             int length = 0;
