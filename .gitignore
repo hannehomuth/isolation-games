@@ -3,3 +3,4 @@
 /isolation-games-client/target-grunt/
 /isolation-games-client/app/lib/
 /isolation-games-server/target/
+/isolation-games-client/node_modules/

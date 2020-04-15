@@ -739,6 +739,9 @@ angular.module('myApp.painter', ['ngRoute'])
                     // Lookup the size the browser is displaying the canvas.
                    
                     var displayWidth =  $scope.meMaster ? Math.round(document.getElementById("canvasContainerMaster").offsetWidth*0.9) : Math.round(document.getElementById("canvasContainer").offsetWidth*0.9);
+                    if(displayWidth > 550){
+                        displayWidth = 550;
+                    }
                     var displayHeight =  Math.round(displayWidth*0.5);
                     if (can.width !== displayWidth ||
                             can.height !== displayHeight) {

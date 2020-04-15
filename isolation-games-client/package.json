@@ -9,7 +9,7 @@
     "angular": "^1.7.5",
     "angular-loader": "^1.7.5",
     "angular-route": "^1.7.5",
-    "angular-websocket":"2.0.1",
+    "angular-websocket": "2.0.1",
     "html5-boilerplate": "0.0.1"
   },
   "devDependencies": {
