@@ -3,20 +3,21 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/view/mon-painter.html</file>
-            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/index.html</file>
-            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/scripts/player.js</file>
-            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/app.css</file>
             <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/view/tabu.html</file>
-            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/index-async.html</file>
-            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/scripts/mon-painter.js</file>
-            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/scripts/tabu.js</file>
-            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/view/painter.html</file>
-            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/scripts/gamechoose.js</file>
-            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/view/whoami.html</file>
-            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/app.js</file>
+            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/scripts/player.js</file>
+            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/view/mon-painter.html</file>
+            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/services/urlInjectorService.js</file>
             <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/scripts/whoami.js</file>
             <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/view/gamechoose.html</file>
+            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/app.css</file>
+            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/scripts/gamechoose.js</file>
+            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/app.js</file>
+            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/view/painter.html</file>
+            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/scripts/tabu.js</file>
+            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/index-async.html</file>
+            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/scripts/mon-painter.js</file>
+            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/view/whoami.html</file>
+            <file>file:/home/jhomuth/projekte/isolation-games/isolation-games-client/app/index.html</file>
         </group>
     </open-files>
 </project-private>

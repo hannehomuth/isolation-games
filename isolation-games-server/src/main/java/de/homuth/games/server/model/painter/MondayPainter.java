@@ -1,9 +1,9 @@
 
 package de.homuth.games.server.model.painter;
 
-import de.homuth.games.server.model.tabu.*;
 import de.homuth.games.server.model.Game;
 import de.homuth.games.server.model.Player;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -32,7 +32,8 @@ public class MondayPainter extends Game {
      */
     public void nextRound() {
         setStarted(true);
-        switchToNextPlayer(Boolean.FALSE);
+        switchToNextPlayer(Boolean.TRUE);
+        makeRandomPlayerAsMaster();
         switchMondayCard();
 
         Calendar nextRoundStartCal = Calendar.getInstance();
@@ -42,6 +43,20 @@ public class MondayPainter extends Game {
         setLastModified(new Date());
     }
     
+    
+    private void makeRandomPlayerAsMaster(){
+        Random r = new Random();
+        ArrayList<Player> pl = new ArrayList<>(this.getPlayers().values());
+        Player newMaster = null;
+        while (newMaster == null) {            
+            int nextInt = r.nextInt(this.getPlayers().size());
+            Player possibleMaster =pl.get(nextInt);
+            if(!possibleMaster.getId().equalsIgnoreCase(this.getActualPlayer().getId()) && !possibleMaster.isMaster()){
+                newMaster = possibleMaster;
+            }
+        }
+        makePlayerToMaster(newMaster.getId());
+    }
     /**
      * Creates the next round of the game
      */

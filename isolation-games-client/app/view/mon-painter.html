@@ -21,6 +21,19 @@
             </button>
         </form>
     </nav>
+    
+     <div id="interveneModal" class="modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" style="margin: 0 auto;"  id="exampleModalLabel">{{playerdata.id === gamedata.actualPlayer.id ? ("Nächste Karte " + gamedata.acutalCard.term): "Begriff " + lastTerm + " übersprungen"}}</h2>
+                </div>
+                <div class="modal-body">
+                    <img src="../images/moop2.jpeg" class="rounded mx-auto d-block" alt="Quietscher">
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div id="nextCardModal" class="modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -41,6 +54,9 @@
                     <h2 data-ng-show="(playerdata.id === gamedata.actualPlayer.id)" class="modal-title red"  style="text-align: center" id="exampleModalLabel">Deine Runde beginnt in</h2>
                     <h2 data-ng-show="(playerdata.id !== gamedata.actualPlayer.id)" class="modal-title"  style="text-align: center" id="exampleModalLabel">Runde von {{gamedata.actualPlayer.name}} beginnt in</h2>
                     <h1 style="font-size: 12em; text-align: center">{{countdownMessage| number:0}}</h1>
+                </div>
+                <div class="modal-footer">
+                    <h3 data-ng-show= class="modal-title"  style="text-align: center" id="exampleModalLabel">{{masterName}} ist Spielleiter</h3>
                 </div>
             </div>
         </div>
@@ -101,40 +117,12 @@
                                 <h3 class="pull-right"><i class="fa fa-flag-checkered" aria-hidden="true"></i></h3>                            
                             </div>
                         </div>
-                        <div class="row" data-ng-show="!meMaster && inGameRoundRunning()">
-                            <div id="canvasContainer" class="col-12">
+                        <div class="row" data-ng-show="inGameRoundRunning()">
+                            <div id="canvasContainer" class="col">
                                 <canvas id="sketchpad">
                                 </canvas>                
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-12">
-                                <div data-ng-show="iamAcutalPlayer() && inGameRoundRunning()" class="card">
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <button type="button" class="btn btn-warning" data-ng-click="clear()"><i class="fa fa-eraser" aria-hidden="true"></i></button>
-                                                <button type="button" class="btn btn-success" data-ng-click="nextcard()"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>
-                                                |
-                                                <button type="button" class="btn btn-danger" data-ng-click="setColor(255, 0, 0)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
-                                                <button type="button" class="btn btn-primary" data-ng-click="setColor(0, 0, 255)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
-                                                <button type="button" class="btn btn-warning" data-ng-click="setColor(255, 255, 0)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
-                                                <button type="button" class="btn btn-success" data-ng-click="setColor(0, 255, 0)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
-                                                <button type="button" class="btn btn-dark" data-ng-click="setColor(0, 0, 0)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
-                                                <button type="button" class="btn btn-light" data-ng-click="setColor(255, 255, 255)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
-                                                <b data-ng-show="(meMaster || playerdata.id === gamedata.actualPlayer.id)">{{gamedata.acutalCard.term}}</b>
-                                            </div>                               
-                                        </div>
-                                    </div>
-                                </div>                              
-                            </div>
-                        </div>
-                        <div class="row" data-ng-show="meMaster">
-                            <div id="canvasContainerMaster" class="col">
-                                <canvas id="sketchpadMaster">
-                                </canvas>                
-                            </div>
-                            <div class="col">
+                            <div data-ng-show="meMaster" class="col">
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
@@ -162,7 +150,28 @@
                                 </table>                
                             </div>
                         </div>
-                        
+                        <div class="row">
+                            <div class="col-12">
+                                <div data-ng-show="iamAcutalPlayer() && inGameRoundRunning()" class="card">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <button type="button" class="btn btn-warning" data-ng-click="clear()"><i class="fa fa-eraser" aria-hidden="true"></i></button>
+                                                <button type="button" class="btn btn-success" data-ng-click="nextcard()"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+                                                |
+                                                <button type="button" class="btn btn-danger" data-ng-click="setColor(255, 0, 0)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                                <button type="button" class="btn btn-primary" data-ng-click="setColor(0, 0, 255)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                                <button type="button" class="btn btn-warning" data-ng-click="setColor(255, 255, 0)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                                <button type="button" class="btn btn-success" data-ng-click="setColor(0, 255, 0)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                                <button type="button" class="btn btn-dark" data-ng-click="setColor(0, 0, 0)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                                <button type="button" class="btn btn-light" data-ng-click="setColor(255, 255, 255)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                                <b data-ng-show="(meMaster || playerdata.id === gamedata.actualPlayer.id)">{{gamedata.acutalCard.term}}</b>
+                                            </div>                               
+                                        </div>
+                                    </div>
+                                </div>                              
+                            </div>
+                        </div>
                         <div class="row" data-ng-show="inGameRoundRunning()">
                             <div class="col-12">
                                 <ul class="list-group list-group-flush">

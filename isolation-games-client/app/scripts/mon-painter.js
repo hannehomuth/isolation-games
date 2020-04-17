@@ -18,6 +18,7 @@ angular.module('myApp.painter', ['ngRoute'])
                 $scope.gamedata = {};
                 $scope.allGames = [];
                 $scope.meMaster = false;
+                $scope.masterName = "";
                 $scope.nextRoundCountDownRunningIndicator = false;
                 $scope.inGameCountDownRunning = false;
                 $scope.rColor = 0;
@@ -79,7 +80,9 @@ angular.module('myApp.painter', ['ngRoute'])
                             angular.forEach($scope.gamedata.players, function (player) {
                                 if (player.id === $rootScope.playerdata.id) {
                                     foundPlayer = true;
-                                    return;
+                                }
+                                if (player.master) {
+                                    $scope.masterName = player.name;
                                 }
                             });
                             if (!foundPlayer) {
@@ -472,11 +475,10 @@ angular.module('myApp.painter', ['ngRoute'])
                                 console.log("DRAW");
                                 setImageOnCanvas(im.imageData);
                             }
-                        }
-
-                        if (event.data === "INTERVENE") {
-                            showNextCardModal();
-                            if ($scope.meMaster || ($rootScope.playerdata.id === $scope.gamedata.actualPlayer.id)) {
+                            if (im.action === "INTERVENE") {
+                                clearCanvas(canvas, ctx);
+                                $scope.lastTerm = im.lastTerm;
+                                showInterveneModal();
                                 $scope.getGame();
                             }
                         }
@@ -499,6 +501,17 @@ angular.module('myApp.painter', ['ngRoute'])
                         iamAp = $rootScope.playerdata.id === $scope.gamedata.actualPlayer.id;
                     }
                     return iamAp;
+                };
+
+                var showInterveneModal = function () {
+                    $('#interveneModal').modal('show');
+                    var audio = new Audio('../images/smssqueeze_idiszvnp.mp3');
+                    audio.play();
+                    $timeout(hideInterveneModal, 1500);
+                };
+
+                var hideInterveneModal = function () {
+                    $('#interveneModal').modal('hide');
                 };
 
                 $scope.showCreateGameModal = function () {
@@ -527,13 +540,9 @@ angular.module('myApp.painter', ['ngRoute'])
                             }
                         })
                     }
-                    if($scope.meMaster){
-                        sketchPadName = "#sketchpadMaster";
-                        init();
-                    }else{
-                        sketchPadName = "#sketchpad";                        
-                        init();
-                    }
+
+                    sketchPadName = "#sketchpad";
+
                 };
 
                 var addPlayerToGame = function () {
@@ -566,7 +575,7 @@ angular.module('myApp.painter', ['ngRoute'])
                     destinationImage.onload = function () {
                         ctx.drawImage(destinationImage, 0, 0, canvas.clientWidth, canvas.clientHeight);
                     };
-                    destinationImage.src = imagedata;                    
+                    destinationImage.src = imagedata;
                 }
 
 
@@ -733,16 +742,16 @@ angular.module('myApp.painter', ['ngRoute'])
                 }
 
 
-                function resize(can) {  
+                function resize(can) {
                     //Remember the old picture before resize
 //                    var tmpPic = canvas.toDataURL("image/png");
                     // Lookup the size the browser is displaying the canvas.
-                   
-                    var displayWidth =  $scope.meMaster ? Math.round(document.getElementById("canvasContainerMaster").offsetWidth*0.9) : Math.round(document.getElementById("canvasContainer").offsetWidth*0.9);
-                    if(displayWidth > 550){
+
+                    var displayWidth = Math.round(document.getElementById("canvasContainer").offsetWidth * 0.9);
+                    if (displayWidth > 550) {
                         displayWidth = 550;
                     }
-                    var displayHeight =  Math.round(displayWidth*0.5);
+                    var displayHeight = Math.round(displayWidth * 0.5);
                     if (can.width !== displayWidth ||
                             can.height !== displayHeight) {
 
@@ -756,12 +765,7 @@ angular.module('myApp.painter', ['ngRoute'])
                 // Set-up the canvas and add our event handlers after the page has loaded
                 function init() {
                     // Get the specific canvas element from the HTML document
-                    if(!$scope.meMaster){
-                        canvas = document.getElementById('sketchpad');
-                    }else{
-                        canvas = document.getElementById('sketchpadMaster');                        
-                        
-                    }
+                    canvas = document.getElementById('sketchpad');
 
                     // If the browser supports the canvas tag, get the 2d drawing context for this canvas
                     if (canvas.getContext)

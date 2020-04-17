@@ -340,9 +340,10 @@ public class PainterResource {
     public Response intervene(@PathParam("gameid") String gameId) {
         try {
             MondayPainter storedGame = storageService.getMondayPainter(gameId,AccessMode.WRITE);
+            MondayPainterInfo c = new MondayPainterInfo();
+            c.setLastTerm(storedGame.getAcutalCard().getTerm());
             storedGame.nextCard();
             storageService.storePainter(storedGame);
-            MondayPainterInfo c = new MondayPainterInfo();
             c.setAction("INTERVENE");
             broadcast(c);
             return Response.ok(storedGame).build();
