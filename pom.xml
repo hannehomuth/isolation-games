@@ -17,7 +17,7 @@
         <thorntail.version>2.5.0.Final</thorntail.version>
         <junit.version>5.3.1</junit.version>
         <commons.text.version>1.7</commons.text.version>
-        <commons.io.version>2.6</commons.io.version>
+        <commons.io.version>2.7</commons.io.version>
         <jakartaee.version>8.0</jakartaee.version>
         <resteasy.version>3.0.16.Final</resteasy.version>
         <jackson.version>2.11.2</jackson.version>
