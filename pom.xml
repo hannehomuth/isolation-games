@@ -20,7 +20,7 @@
         <commons.io.version>2.6</commons.io.version>
         <jakartaee.version>8.0</jakartaee.version>
         <resteasy.version>3.0.16.Final</resteasy.version>
-        <jackson.version>2.11.2</jackson.version>
+        <jackson.version>2.13.4.1</jackson.version>
         <slf4j.version>2.13.3</slf4j.version>
         <okhttp.version>4.1.1</okhttp.version>
         <opencsv.version>4.1</opencsv.version>
